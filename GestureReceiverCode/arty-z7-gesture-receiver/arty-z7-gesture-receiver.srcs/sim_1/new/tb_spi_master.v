@@ -1,41 +1,44 @@
 `timescale 1ns / 1ps
 
+// Testbench for the spi_master module, now supporting selective test execution.
 module tb_spi_master;
 
     // ----------------------------------------------------
-    // #1. Khai báo Tham s? và H?ng s? (PARAMETER & CONSTANTS)
+    // 1. PARAMETERS & CONSTANTS
     // ----------------------------------------------------
-    // Tham s? CLK_DIV ph?i kh?p v?i module DUT
     parameter CLK_DIV = 50; 
+    parameter CLK_PERIOD = 10; 
     
-    // T?c ?? ??ng h? (CLK_PERIOD)
-    parameter CLK_PERIOD = 10; // 10ns -> 100MHz clock
+    // Test Data Patterns
+    parameter DATA_TX_PATTERN_1 = 8'h5A; 
+    parameter DATA_RX_EXPECTED_1 = 8'hC3; 
+    parameter DATA_TX_PATTERN_2 = 8'hAA; 
+    parameter DATA_RX_EXPECTED_2 = 8'h3C; 
     
-    // ??nh ngh?a d? li?u mà SLAVE s? "g?i" (Master s? nh?n)
-    parameter SLAVE_TX_DATA = 8'hC3; // 11000011
-    
+    parameter TEST_CASE_ID = 3;
     
     // ----------------------------------------------------
-    // #2. Khai báo Tín hi?u (SIGNALS)
+    // 2. SIGNALS & DUT Instantiation
     // ----------------------------------------------------
+    // DUT Inputs
     reg clk;
     reg reset;
     reg start;
     reg [7:0] data_tx;
-    reg miso; // Master In Slave Out (Slave g?i)
+    reg miso; // Master In Slave Out
     
+    // DUT Outputs
     wire [7:0] data_rx;
     wire busy;
     wire sck;
-    wire mosi; // Master Out Slave In (Master g?i)
+    wire mosi; // Master Out Slave In
     
-    // Bi?n ??m (ph?i ???c khai báo ? ph?m vi module)
-    integer bit_count;
-
+    // Internal variables for slave logic
+    reg [7:0] slave_shift_reg;
+    reg [3:0] slave_bit_index;
     
-    // ----------------------------------------------------
-    // #3. Kh?i t?o Module D??i Th? Nghi?m (DUT - Device Under Test)
-    // ----------------------------------------------------
+    
+    // Device Under Test (DUT)
     spi_master #(.CLK_DIV(CLK_DIV)) DUT (
         .clk(clk),
         .reset(reset),
@@ -50,7 +53,7 @@ module tb_spi_master;
     
     
     // ----------------------------------------------------
-    // #4. T?o Clock
+    // 3. Clock Generation
     // ----------------------------------------------------
     always begin
         # (CLK_PERIOD / 2) clk = ~clk;
@@ -58,82 +61,157 @@ module tb_spi_master;
     
     
     // ----------------------------------------------------
-    // #5. K?ch b?n mô ph?ng chính (Test Scenario)
+    // 4. COMMON TASK: Single SPI Transfer Transaction
+    // ----------------------------------------------------
+    // This task executes a single 8-bit SPI transaction (CPOL=0, CPHA=0).
+    task run_transfer;
+        input [7:0] tx_data_in;
+        input [7:0] rx_data_expected_in;
+        begin
+            $display("\n=======================================================");
+            $display("[%0t] STARTING TRANSFER: TX=%h, Expected RX=%h", $time, tx_data_in, rx_data_expected_in);
+            $display("=======================================================");
+            
+            // 1. Setup Master and Slave
+            data_tx = tx_data_in;
+            slave_shift_reg = rx_data_expected_in;
+            slave_bit_index = 0;
+            start = 1;
+            
+            // CRUCIAL for CPHA=0: Set the first MISO bit (MSB) before the first SCK rising edge.
+            miso <= rx_data_expected_in[7]; 
+            
+            @(posedge clk) #1;
+            start = 0; 
+            
+            // Wait for BUSY to assert
+            wait(busy == 1);
+            $display("[%0t] Master is BUSY. Starting 8-bit loop.", $time);
+            
+            // 2. 8-Bit Transfer Loop 
+            while (slave_bit_index < 8) begin
+                
+                // --- Step A: Wait for Posedge SCK (Master Samples MISO) ---
+                @(posedge sck) begin
+                    $display("[%0t] Posedge SCK (Bit %0d): MOSI (TX Master) = %b, MISO (RX Slave) = %b, Expected_RX_Bit = %b", 
+                             $time, slave_bit_index, mosi, miso, slave_shift_reg[7 - slave_bit_index]);
+                             
+                    slave_bit_index <= slave_bit_index + 1; 
+                end
+                
+                // --- Step B: Wait for Negedge SCK (Slave Sets MISO for next bit) ---
+                @(negedge sck) begin
+                    #1; 
+                    
+                    // Slave sets MISO for the NEXT bit (before the next posedge SCK)
+                    if (slave_bit_index < 8) begin
+                        miso <= slave_shift_reg[7 - slave_bit_index]; 
+                    end
+                end
+            end
+            
+            // 3. Wait for Transaction End
+            wait(busy == 0);
+            $display("[%0t] Transfer Complete. Master is IDLE. SCK=%b.", $time, sck);
+            
+            // 4. Verification
+            if (data_rx === slave_shift_reg) begin
+                $display("--- VERIFICATION SUCCESS ---");
+                $display("RX Data: %h (Matches Expected %h)", data_rx, slave_shift_reg);
+            end else begin
+                $error("--- VERIFICATION FAILED ---");
+                $error("RX Data: %h (DOES NOT MATCH Expected %h)", data_rx, slave_shift_reg);
+            end
+        end
+    endtask
+
+
+    // ----------------------------------------------------
+    // 5. MAIN TEST SCENARIOS (Selective Execution)
     // ----------------------------------------------------
     initial begin
-        // 1. Kh?i t?o giá tr? ban ??u
+        $display("----------------------------------------");
+        $display("STARTING SELECTIVE SPI MASTER TESTBENCH");
+        $display("Selected Test Case ID: %0d", TEST_CASE_ID);
+        $display("----------------------------------------");
+        
+        // 1. Common Initialization and Reset
         clk = 0;
         reset = 1;
         start = 0;
-        data_tx = 8'hAA; 
-        miso = 0;
+        data_tx = 8'h00; 
+        miso = 1'bZ; 
         
-        $display("----------------------------------------");
-        $display("B?t ??u mô ph?ng SPI Master");
+        # (CLK_PERIOD * 2) @(posedge clk);
+        reset = 0; // Release Reset
+        $display("[%0t] System Reset Released. Master is in IDLE state.", $time);
         
-        // 2. Thi?t l?p l?i h? th?ng
-        @(posedge clk) #1;
-        reset = 0;
-        $display("[%0t] Thi?t l?p l?i (Reset) hoàn t?t.", $time);
         
-        // 3. Chu?n b? d? li?u và b?t ??u truy?n
-        @(posedge clk) #1;
-        data_tx = 8'h55; // D? li?u G?i: 01010101
-        start = 1;
-        $display("[%0t] Kích ho?t Start. D? li?u TX = %h", $time, data_tx);
+        // =======================================================================
+        // EXECUTION CONTROL BLOCK
+        // =======================================================================
+
+        if (TEST_CASE_ID == 1) begin
+            $display("Running Test Case 1: Standard Transfer (5A <-> C3)");
+            run_transfer(DATA_TX_PATTERN_1, DATA_RX_EXPECTED_1);
+        end 
         
-        @(posedge clk) #1;
-        start = 0; // T?t Start sau 1 chu k? clock
-        
-        // Kh?i t?o b? ??m bit t?i ?ây
-        bit_count = 0;
-        
-        // 4. Mô ph?ng ph?n h?i t? Slave (miso)
-        // L?p qua 8 bit
-        while (bit_count < 8) begin
-            
-            // Ch? ??i SCK lên (Master ??c d? li?u t? Slave trên c?nh lên c?a SCK)
-            @(posedge sck) begin
-                // SCK lên: Master ??c MISO
-                #1; // Th?i gian tr? nh? ?? Master k?p ??c
-                
-                // Cung c?p bit ti?p theo t? Slave (MSB tr??c)
-                miso = SLAVE_TX_DATA[7 - bit_count]; 
-                
-                $display("[%0t] SCK Lên. Bit #%0d. MISO (Slave G?i) = %b. MOSI (Master G?i) = %b", 
-                         $time, bit_count, miso, mosi);
-                
-                bit_count = bit_count + 1;
-            end
-            
-            // Ch? ??i SCK xu?ng, ch? ?? ??m b?o chu trình ho?t ??ng
-            @(negedge sck) begin
-                // Master ??t MOSI cho bit ti?p theo t?i ?ây (d?a trên thi?t k? DUT)
-            end
+        else if (TEST_CASE_ID == 2) begin
+            $display("Running Test Case 2: Standard Transfer (AA <-> 3C)");
+            run_transfer(DATA_TX_PATTERN_2, DATA_RX_EXPECTED_2);
         end
         
-        // 5. Ch? module chuy?n sang tr?ng thái DONE (busy=0)
-        @(posedge busy) #1; 
-        @(negedge busy) #1;
-        
-        // 6. Ki?m tra k?t qu?
-        $display("----------------------------------------");
-        $display("[%0t] Truy?n hoàn t?t. Busy = %b, SCK = %b.", $time, busy, sck);
-        $display("D? li?u TX (G?i): %h", data_tx);
-        $display("D? li?u RX (Nh?n): %h", data_rx);
-        
-        if (data_rx === SLAVE_TX_DATA) begin
-            $display("--- KI?M TRA: THÀNH CÔNG! D? li?u nh?n kh?p v?i d? li?u Slave gi? l?p (%h).", SLAVE_TX_DATA);
-        end else begin
-            $display("--- KI?M TRA: TH?T B?I! D? li?u nh?n (%h) không kh?p v?i d? li?u Slave gi? l?p (%h).", data_rx, SLAVE_TX_DATA);
+        else if (TEST_CASE_ID == 3) begin
+            $display("Running Test Case 3: Reset During Transfer Test");
+            
+            // a. Start transfer
+            data_tx = 8'h12;
+            slave_shift_reg = 8'hFE;
+            slave_bit_index = 0;
+            start = 1;
+            miso <= slave_shift_reg[7]; // Initial MISO set
+            @(posedge clk) #1;
+            start = 0;
+            
+            wait(busy == 1);
+            $display("[%0t] Transfer started. Waiting for 3 bits to transfer...", $time);
+            
+            // b. Wait for first few SCK cycles (e.g., 3 bits)
+            repeat (3) @(posedge sck);
+            
+            // c. Assert Reset
+            $display("[%0t] *** ASSERTING HARD RESET DURING TRANSFER ***", $time);
+            reset = 1;
+            
+            // d. Wait for a few clock cycles and check state
+            # (CLK_PERIOD * 5) @(posedge clk);
+            if (busy == 0 && sck == 0) begin
+                $display("[%0t] RESET SUCCESSFUL: Busy=%b and SCK=%b are reset correctly.", $time, busy, sck);
+            end else begin
+                 $error("[%0t] RESET FAILED: Busy=%b or SCK=%b did not reset.", $time, busy, sck);
+            end
+            
+            // e. Release Reset and confirm functionality is restored
+            @(posedge clk) #1;
+            reset = 0;
+            $display("[%0t] Reset released. Running final check transfer (CD <-> AB).", $time);
+            
+            # (CLK_PERIOD * 10) @(posedge clk); 
+            run_transfer(8'hCD, 8'hAB);
         end
-        $display("----------------------------------------");
         
-        // 7. K?t thúc mô ph?ng
+        else begin
+            $display("ERROR: Invalid TEST_CASE_ID (%0d). Please set TEST_CASE_ID to 1, 2, or 3.", TEST_CASE_ID);
+        end
+        
+        // -----------------------------------------------------------------------
+        
+        // Finalize simulation
+        $display("\n[%0t] Simulation finished.", $time);
         #100 $finish;
     end
     
-    // Ghi các tín hi?u ra file VCD ?? xem d?ng sóng
+    // VCD Dump for Waveform viewing
     initial begin
         $dumpfile("spi_master.vcd");
         $dumpvars(0, tb_spi_master);

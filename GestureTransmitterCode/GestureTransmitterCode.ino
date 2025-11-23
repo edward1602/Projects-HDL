@@ -3,19 +3,19 @@
 
 const int x_out = A0;
 const int y_out = A1;
-const int z_out = A2;  // Thêm chân đọc trục Z
-RF24 radio(8, 10);  // CE, CSN
+const int z_out = A2;  
+RF24 radio(8, 10); 
 const byte address[6] = "00001";
 
 struct data {
   int xAxis;
   int yAxis;
-  int zAxis;  // Thêm trục Z
+  int zAxis;  
 };
 data send_data;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   
   Serial.println("=== GESTURE TRANSMITTER ===");
   Serial.println("Kiem tra NRF24L01+...");
@@ -32,21 +32,21 @@ void setup() {
   
   Serial.println("OK: NRF24L01+ khoi tao thanh cong!");
   
-  // Cấu hình RF24 giống với code test thành công
+  // Cấu hình RF24 giống với Receiver
   radio.openWritingPipe(address);
   radio.setPALevel(RF24_PA_LOW);
   radio.setDataRate(RF24_250KBPS);
+  radio.setChannel(76);
   radio.stopListening();
   
   Serial.println("Bat dau doc cam bien va gui tin hieu...");
   delay(2000);
 }
-
 void loop() {
   // Đọc giá trị từ cảm biến ADXL335 (3 trục)
   send_data.xAxis = analogRead(x_out);
   send_data.yAxis = analogRead(y_out);
-  send_data.zAxis = analogRead(z_out);  // Đọc trục Z
+  send_data.zAxis = analogRead(z_out);
   
   // Gửi qua RF24
   bool result = radio.write(&send_data, sizeof(data));
@@ -61,5 +61,5 @@ void loop() {
   Serial.print(" | Gui: ");
   Serial.println(result ? "OK" : "FAIL");
   
-  delay(50); // Tần số 20Hz - đủ nhanh cho điều khiển
+  delay(100); // Tần số 10Hz - đủ nhanh cho điều khiển
 }

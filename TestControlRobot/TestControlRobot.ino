@@ -11,10 +11,10 @@ AF_DCMotor motor4(2);
 // 3 --- 4
 
 char cmd = 0;
-int spd = 200;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  delay(1000);
 
   // Set speed for motors
   motor1.setSpeed(0);
@@ -22,51 +22,51 @@ void setup() {
   motor3.setSpeed(0);
   motor4.setSpeed(0);
 
-  Serial.println("Start...");
+  // Silent startup - ready for UART communication
 }
 
 void loop() {
   // Read input
   if (Serial.available()) {
     cmd = Serial.read();
-    Serial.println(cmd);
   }
 
   // Process input
   switch (cmd) {
     case 'W':
-      Serial.println("Go forward");
       goForward(255);
       break;
     case 'S':
-      Serial.println("Go backward");
       goBackward(255);
       break;
     case 'D':
-      Serial.println("Go right");
       goRight(255);
       break;
     case 'A':
-      Serial.println("Go left");
       goLeft(255);
       break;
     case 'R':
-      Serial.println("Turn right");
       rotateRight(255);
       break;
     case 'L':
-      Serial.println("Turn left");
       rotateLeft(255);
       break;
     case 'X':
-      Serial.println("Stop");
       stop();
-    default: break;
+      break;
+    default: 
+      // Silent ignore unknown commands
+      break;
   }
   delay(500);
 }
 
 void goForward(int _spd) {
+  motor1.setSpeed(_spd);
+  motor2.setSpeed(_spd);
+  motor3.setSpeed(_spd);
+  motor4.setSpeed(_spd);
+  
   motor1.run(FORWARD);
   motor2.run(FORWARD);
   motor3.run(FORWARD);
@@ -75,6 +75,11 @@ void goForward(int _spd) {
 }
 
 void goBackward(int _spd) {
+  motor1.setSpeed(_spd);
+  motor2.setSpeed(_spd);
+  motor3.setSpeed(_spd);
+  motor4.setSpeed(_spd);
+  
   motor1.run(BACKWARD);
   motor2.run(BACKWARD); 
   motor3.run(BACKWARD);
@@ -83,82 +88,62 @@ void goBackward(int _spd) {
 }
 
 void goRight(int _spd) {
+  // Set speed TRƯỚC
+  motor1.setSpeed(_spd);
+  motor2.setSpeed(_spd);
+  motor3.setSpeed(_spd);
+  motor4.setSpeed(_spd);
+  
+  // Sau đó set direction
   motor1.run(FORWARD);
   motor2.run(BACKWARD);
   motor3.run(BACKWARD);
   motor4.run(FORWARD);
-
-  if (spd < _spd) {
-    motor1.setSpeed(++spd);
-    motor2.setSpeed(++spd);
-    motor3.setSpeed(++spd);
-    motor4.setSpeed(++spd);
-  } else {
-    motor1.setSpeed(spd);
-    motor2.setSpeed(spd);
-    motor3.setSpeed(spd);
-    motor4.setSpeed(spd);
-  }
   delay(10);
 }
 
 void goLeft(int _spd) {
+  // Set speed TRƯỚC
+  motor1.setSpeed(_spd);
+  motor2.setSpeed(_spd);
+  motor3.setSpeed(_spd);
+  motor4.setSpeed(_spd);
+  
+  // Sau đó set direction
   motor1.run(BACKWARD);
   motor2.run(FORWARD);
   motor3.run(FORWARD);
   motor4.run(BACKWARD);
-
-  if (spd < _spd) {
-    motor1.setSpeed(++spd);
-    motor2.setSpeed(++spd);
-    motor3.setSpeed(++spd);
-    motor4.setSpeed(++spd);
-  } else {
-    motor1.setSpeed(spd);
-    motor2.setSpeed(spd);
-    motor3.setSpeed(spd);
-    motor4.setSpeed(spd);
-  }
   delay(10);
 }
 
 void rotateLeft(int _spd) {
+  // Set speed TRƯỚC
+  motor1.setSpeed(_spd);
+  motor2.setSpeed(_spd);
+  motor3.setSpeed(_spd);
+  motor4.setSpeed(_spd);
+  
+  // Sau đó set direction
   motor1.run(BACKWARD);
   motor2.run(FORWARD);
   motor3.run(BACKWARD);
   motor4.run(FORWARD);
-  
-  if (spd < _spd) {
-    motor1.setSpeed(++spd);
-    motor2.setSpeed(++spd);
-    motor3.setSpeed(++spd);
-    motor4.setSpeed(++spd);
-  } else {
-    motor1.setSpeed(spd);
-    motor2.setSpeed(spd);
-    motor3.setSpeed(spd);
-    motor4.setSpeed(spd);
-  }
   delay(10);
 }
 
 void rotateRight(int _spd) {
+  // Set speed TRƯỚC
+  motor1.setSpeed(_spd);
+  motor2.setSpeed(_spd);
+  motor3.setSpeed(_spd);
+  motor4.setSpeed(_spd);
+  
+  // Sau đó set direction
   motor1.run(FORWARD);
   motor2.run(BACKWARD);
   motor3.run(FORWARD);
   motor4.run(BACKWARD);
-
-  if (spd < _spd) {
-    motor1.setSpeed(++spd);
-    motor2.setSpeed(++spd);
-    motor3.setSpeed(++spd);
-    motor4.setSpeed(++spd);
-  } else {
-    motor1.setSpeed(spd);
-    motor2.setSpeed(spd);
-    motor3.setSpeed(spd);
-    motor4.setSpeed(spd);
-  }
   delay(10);
 }
 

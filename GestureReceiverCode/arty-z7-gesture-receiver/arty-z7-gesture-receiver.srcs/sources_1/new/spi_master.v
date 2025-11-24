@@ -1,73 +1,63 @@
-`timescale 1ns / 1ps
-
- module spi_master(
-    input wire clk,
-    input wire reset,
+module spi_master (
+    input wire clk,             // 125 MHz
+    input wire rst,
     input wire start,
-    input wire [7:0] data_tx,
-    output reg [7:0] data_rx,
-    output reg busy,
+    input wire [7:0] data_in,
+    output reg [7:0] data_out,
+    output reg done,
+    
     output reg sck,
-    output reg mosi, // Master Out Slave In: master send - slave get
-    input wire miso // Master In Slave Out: master get - slave send
-    );
-    parameter CLK_DIV = 50;
+    output reg mosi,
+    input wire miso
+);
+    // 125MHz / 64 ~= 2MHz (T?c ?? an toàn cho dây n?i dài)
+    parameter CLK_DIV = 6; 
+    reg [CLK_DIV-1:0] clk_cnt;
+    wire sck_en = (clk_cnt == 0);
     
-    reg [5:0] clk_counter;
-    reg [3:0] bit_counter;
-    reg [7:0] tx_buffer;
-    reg [7:0] rx_buffer;
-    
-    localparam IDLE = 0, TRANSFER = 1, DONE = 2;
+    reg [3:0] bit_cnt;
     reg [1:0] state;
-        
-    always @(posedge clk) begin
-        if (reset) begin
-            state <= IDLE;
-            busy <= 0;
-            sck <= 0;
-            mosi <= 0;
-            bit_counter <= 0;
-            clk_counter <= 0;
+    reg [7:0] shift_reg;
+
+    localparam IDLE = 0, TRANSFER = 1;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            clk_cnt <= 0; sck <= 0;
         end else begin
+            clk_cnt <= clk_cnt + 1;
+            if (state == TRANSFER) begin 
+                if (clk_cnt == {1'b1, {(CLK_DIV-1){1'b0}}}) sck <= 1;
+                else if (clk_cnt == 0) sck <= 0;
+            end else sck <= 0;
+        end
+    end
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            state <= IDLE; mosi <= 0; done <= 0;
+            bit_cnt <= 0; data_out <= 0; shift_reg <= 0;
+        end else if (sck_en) begin
             case (state)
                 IDLE: begin
-                    busy <= 0;
-                    sck <= 0;
+                    done <= 0;
                     if (start) begin
-                        tx_buffer <= data_tx;
-                        bit_counter <= 0;
-                        clk_counter <= 0;
-                        busy <= 1;
+                        shift_reg <= data_in;
+                        mosi <= data_in[7];
+                        bit_cnt <= 0;
                         state <= TRANSFER;
                     end
                 end
-                
                 TRANSFER: begin
-                    if (clk_counter == CLK_DIV - 1) begin
-                        clk_counter <= 0;
-                        sck <= ~sck;
-                        
-                        if (sck == 0) begin
-                            mosi <= tx_buffer[7 - bit_counter];
-                        end else begin
-                            rx_buffer[7 - bit_counter] <= miso;
-                            bit_counter <= bit_counter + 1;
-                            
-                            if (bit_counter == 7) begin
-                                state <= DONE;
-                            end
-                        end
+                    if (bit_cnt == 7) begin
+                        state <= IDLE;
+                        done <= 1;
+                        data_out <= {shift_reg[6:0], miso};
                     end else begin
-                        clk_counter <= clk_counter + 1;
+                        shift_reg <= {shift_reg[6:0], miso};
+                        mosi <= shift_reg[6];
+                        bit_cnt <= bit_cnt + 1;
                     end
-                end
-                
-                DONE: begin
-                    data_rx <= rx_buffer;
-                    busy <= 0;
-                    sck <= 0;
-                    state <= IDLE;
                 end
             endcase
         end

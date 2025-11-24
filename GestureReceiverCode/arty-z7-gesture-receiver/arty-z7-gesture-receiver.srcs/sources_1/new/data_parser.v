@@ -10,9 +10,9 @@ module data_parser (
     input wire [7:0] payload_4,
     input wire [7:0] payload_5,
     input wire data_ready,
-    output reg signed [15:0] accel_x,
-    output reg signed [15:0] accel_y,
-    output reg signed [15:0] accel_z,
+    output reg [15:0] accel_x,
+    output reg [15:0] accel_y,
+    output reg [15:0] accel_z,
     output reg valid
 );
     always @(posedge clk) begin

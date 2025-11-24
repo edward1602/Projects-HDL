@@ -1,0 +1,81 @@
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
+| Date         : Mon Nov 24 16:33:22 2025
+| Host         : myDELL running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file nrf_receiver_system_top_control_sets_placed.rpt
+| Design       : nrf_receiver_system_top
+| Device       : xc7z020
+----------------------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Number of unique control sets                            |    13 |
+| Unused register locations in slices containing registers |    38 |
++----------------------------------------------------------+-------+
+
+
+2. Histogram
+------------
+
++--------+--------------+
+| Fanout | Control Sets |
++--------+--------------+
+|      2 |            3 |
+|      4 |            2 |
+|      8 |            1 |
+|     10 |            1 |
+|    16+ |            6 |
++--------+--------------+
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |              56 |            8 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |              36 |           11 |
+| Yes          | No                    | No                     |              34 |            8 |
+| Yes          | No                    | Yes                    |               0 |            0 |
+| Yes          | Yes                   | No                     |              92 |           22 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++----------------+-------------------------------------------+------------------+------------------+----------------+
+|  Clock Signal  |               Enable Signal               | Set/Reset Signal | Slice Load Count | Bel Load Count |
++----------------+-------------------------------------------+------------------+------------------+----------------+
+|  clk_IBUF_BUFG | ctrl_inst/csn_i_1_n_0                     | reset_btn_IBUF   |                1 |              2 |
+|  clk_IBUF_BUFG | spi_inst/mosi_i_1_n_0                     | reset_btn_IBUF   |                1 |              2 |
+|  clk_IBUF_BUFG | spi_inst/sck_i_1_n_0                      | reset_btn_IBUF   |                1 |              2 |
+|  clk_IBUF_BUFG | ctrl_inst/ce_i_1_n_0                      | reset_btn_IBUF   |                1 |              4 |
+|  clk_IBUF_BUFG | spi_inst/rx_shift_reg_reg[5]_srl5_i_1_n_0 |                  |                2 |              4 |
+|  clk_IBUF_BUFG | ctrl_inst/reg_idx                         | reset_btn_IBUF   |                2 |              8 |
+|  clk_IBUF_BUFG | ctrl_inst/FSM_sequential_state[4]_i_1_n_0 | reset_btn_IBUF   |                2 |             10 |
+|  clk_IBUF_BUFG | ctrl_inst/spi_tx[7]_i_1_n_0               |                  |                5 |             16 |
+|  clk_IBUF_BUFG | spi_inst/tx_shift_reg[7]_i_1_n_0          |                  |                2 |             16 |
+|  clk_IBUF_BUFG | spi_inst/clk_counter_0                    | reset_btn_IBUF   |                4 |             16 |
+|  clk_IBUF_BUFG |                                           | reset_btn_IBUF   |               11 |             36 |
+|  clk_IBUF_BUFG | ctrl_inst/delay_cnt_0                     | reset_btn_IBUF   |               10 |             48 |
+|  clk_IBUF_BUFG |                                           |                  |                8 |             56 |
++----------------+-------------------------------------------+------------------+------------------+----------------+
+
+

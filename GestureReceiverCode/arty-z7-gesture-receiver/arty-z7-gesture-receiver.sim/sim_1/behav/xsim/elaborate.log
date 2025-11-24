@@ -1,7 +1,13 @@
 Vivado Simulator 2018.2
 Copyright 1986-1999, 2001-2018 Xilinx, Inc. All Rights Reserved.
-Running: D:/Vivado/2018.2/bin/unwrapped/win64.o/xelab.exe -wto 46c4b0ab245e40d58c9c72527d28a27b --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot tb_spi_master_behav xil_defaultlib.tb_spi_master xil_defaultlib.glbl -log elaborate.log 
+Running: D:/Vivado/2018.2/bin/unwrapped/win64.o/xelab.exe -wto 46c4b0ab245e40d58c9c72527d28a27b --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot tb_nrf24l01_controller_behav xil_defaultlib.tb_nrf24l01_controller xil_defaultlib.glbl -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
 Completed static elaboration
-INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module xil_defaultlib.nrf24l01_controller
+Compiling module xil_defaultlib.tb_nrf24l01_controller
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot tb_nrf24l01_controller_behav

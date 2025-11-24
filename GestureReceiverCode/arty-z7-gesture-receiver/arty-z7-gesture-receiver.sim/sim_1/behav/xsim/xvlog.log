@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module nrf24l01_controller
+INFO: [VRFC 10-2263] Analyzing Verilog file "E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_nrf24l01_controller.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tb_nrf24l01_controller

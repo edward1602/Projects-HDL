@@ -2,8 +2,11 @@ module nrf24l01_controller (
     input wire clk,
     input wire rst,
     
-    // Output hi?n th? LED
+    // Output
     output reg [3:0] leds_out,
+    output reg [15:0] x_out,
+    output reg [15:0] y_out,
+    output reg [15:0] z_out,
     
     // SPI Interface
     output reg spi_start,
@@ -16,42 +19,29 @@ module nrf24l01_controller (
     output reg nrf_ce
 );
 
-    // --- ??NH NGH?A CÁC TR?NG THÁI (STATES) ---
-    localparam S_INIT_WAIT      = 0;
+    // --- CÁC TR?NG THÁI ---
+    localparam S_INIT_WAIT = 0, S_CFG_EN_AA = 1, S_CFG_CH = 2, S_CFG_SETUP = 3;
+    localparam S_CFG_PAYLOAD = 4, S_CFG_CONFIG = 5, S_RX_MODE = 6, S_POLL_STATUS = 7;
+    localparam S_READ_STATUS = 8, S_CHECK_FIFO = 9, S_READ_CMD = 10;
     
-    // Các b??c c?u hình (Main Sequence)
-    localparam S_CFG_EN_AA      = 1;
-    localparam S_CFG_CH         = 2;
-    localparam S_CFG_SETUP      = 3;
-    localparam S_CFG_PAYLOAD    = 4;
-    localparam S_CFG_CONFIG     = 5;
+    // --- S?A ??I: Tách S_READ_BYTES thành 2 tr?ng thái ---
+    localparam S_READ_REQ  = 11; // G?i yêu c?u ??c
+    localparam S_READ_WAIT = 12; // Ch? d? li?u v?
     
-    // Các tr?ng thái ho?t ??ng
-    localparam S_RX_MODE        = 6;
-    localparam S_POLL_STATUS    = 7;
-    localparam S_READ_STATUS    = 8;
-    localparam S_CHECK_FIFO     = 9;
-    localparam S_READ_CMD       = 10;
-    localparam S_READ_BYTES     = 11;
-    localparam S_PROCESS_DATA   = 12;
-    localparam S_CLEAR_IRQ      = 13;
+    localparam S_PROCESS_DATA = 13;
     
-    // --- TR?NG THÁI PH? (SUBROUTINES) ?? GHI REGISTER ---
-    // Thay vì dùng hàm write_reg, ta dùng các state này ?? x? lý chung
-    localparam S_WRITE_REG_CMD  = 20; // G?i l?nh (??a ch?)
-    localparam S_WRITE_REG_VAL  = 21; // G?i giá tr?
-    localparam S_WRITE_REG_DONE = 22; // K?t thúc (kéo CSN cao)
+    // Subroutines ghi Register
+    localparam S_WRITE_REG_CMD = 20, S_WRITE_REG_VAL = 21, S_WRITE_REG_DONE = 22;
 
     reg [4:0] state;
-    reg [4:0] return_state; // Bi?n nh? ?? bi?t quay v? ?âu sau khi ghi xong
+    reg [4:0] return_state;
     reg [19:0] delay_cnt;
-    
-    // Buffer d? li?u
     reg [2:0] byte_idx;
-    reg [7:0] rx_buffer [0:5]; 
-    reg [7:0] val_to_write; // Bi?n t?m l?u giá tr? c?n ghi vào Register
     
-    // NRF Commands
+    // Buffer
+    reg [7:0] rx_buffer [0:5]; 
+    reg [7:0] val_to_write; 
+    
     localparam CMD_W_REG = 8'h20;
     localparam CMD_R_REG = 8'h00;
     localparam CMD_R_RX  = 8'h61;
@@ -61,175 +51,134 @@ module nrf24l01_controller (
             state <= S_INIT_WAIT;
             nrf_csn <= 1; nrf_ce <= 0;
             spi_start <= 0; delay_cnt <= 0;
-            leds_out <= 0;
-            byte_idx <= 0;
+            leds_out <= 4'b0000;
             return_state <= S_INIT_WAIT;
-            val_to_write <= 0;
         end else begin
             case (state)
-                // 1. Ch? kh?i ??ng ?n ??nh ?i?n áp
                 S_INIT_WAIT: begin
                     delay_cnt <= delay_cnt + 1;
-                    if (delay_cnt == 20'hFFFFF) state <= S_CFG_EN_AA;
+//                    if (delay_cnt == 20'hFFFFF) state <= S_CFG_EN_AA;
+                    if (delay_cnt == 20'h000FF) state <= S_CFG_EN_AA;
                 end
                 
-                // ==========================================
-                // PH?N C?U HÌNH (Dùng c? ch? Jump & Return)
-                // ==========================================
-                
-                // 2. T?t AutoAck: Ghi 0x00 vào REG 0x01
-                S_CFG_EN_AA: begin
-                    spi_data_in <= CMD_W_REG | 5'h01; // L?nh ghi vào Reg 0x01
-                    val_to_write <= 8'h00;            // Giá tr? c?n ghi
-                    return_state <= S_CFG_CH;         // Làm xong thì nh?y t?i b??c ti?p theo
-                    state <= S_WRITE_REG_CMD;         // B?t ??u quy trình ghi
+                // --- C?U HÌNH (CONFIG) ---
+                S_CFG_EN_AA: begin 
+                   spi_data_in <= CMD_W_REG | 5'h01; val_to_write <= 8'h00; // T?t AutoAck
+                   return_state <= S_CFG_CH; state <= S_WRITE_REG_CMD;
+                end
+                S_CFG_CH: begin 
+                   spi_data_in <= CMD_W_REG | 5'h05; val_to_write <= 8'h02; // Kênh 2
+                   return_state <= S_CFG_SETUP; state <= S_WRITE_REG_CMD;
+                end
+                S_CFG_SETUP: begin 
+                   spi_data_in <= CMD_W_REG | 5'h06; val_to_write <= 8'h26; // 250 KBPS
+                   return_state <= S_CFG_PAYLOAD; state <= S_WRITE_REG_CMD;
+                end
+                S_CFG_PAYLOAD: begin 
+                   spi_data_in <= CMD_W_REG | 5'h11; val_to_write <= 8'h06; // 6 BYTES
+                   return_state <= S_CFG_CONFIG; state <= S_WRITE_REG_CMD;
+                end
+                S_CFG_CONFIG: begin 
+                   spi_data_in <= CMD_W_REG | 5'h00; val_to_write <= 8'h0F; // Power UP + CRC
+                   return_state <= S_RX_MODE; state <= S_WRITE_REG_CMD;
                 end
 
-                // 3. Set Kênh 2: Ghi 0x02 vào REG 0x05
-                S_CFG_CH: begin
-                    spi_data_in <= CMD_W_REG | 5'h05;
-                    val_to_write <= 8'h02;
-                    return_state <= S_CFG_SETUP;
-                    state <= S_WRITE_REG_CMD;
-                end
-
-                // 4. Set 250KBPS: Ghi 0x26 vào REG 0x06
-                S_CFG_SETUP: begin
-                    spi_data_in <= CMD_W_REG | 5'h06;
-                    val_to_write <= 8'h26;
-                    return_state <= S_CFG_PAYLOAD;
-                    state <= S_WRITE_REG_CMD;
-                end
-
-                // 5. Set Payload 6 Byte: Ghi 0x06 vào REG 0x11
-                S_CFG_PAYLOAD: begin
-                    spi_data_in <= CMD_W_REG | 5'h11;
-                    val_to_write <= 8'h06;
-                    return_state <= S_CFG_CONFIG;
-                    state <= S_WRITE_REG_CMD;
-                end
-
-                // 6. Power Up + CRC: Ghi 0x0F vào REG 0x00
-                S_CFG_CONFIG: begin
-                    spi_data_in <= CMD_W_REG | 5'h00;
-                    val_to_write <= 8'h0F;
-                    return_state <= S_RX_MODE;
-                    state <= S_WRITE_REG_CMD;
-                end
-
-                // ==========================================
-                // SUBROUTINE: GHI REGISTER (Dùng chung)
-                // ==========================================
-                S_WRITE_REG_CMD: begin
-                    nrf_csn <= 0;        // Kéo CSN xu?ng
-                    spi_start <= 1;      // G?i byte Command (?ã set ? step tr??c)
-                    if (spi_start) spi_start <= 0;
-                    if (spi_done) state <= S_WRITE_REG_VAL;
-                end
-
-                S_WRITE_REG_VAL: begin
-                    spi_data_in <= val_to_write; // G?i byte Giá tr?
-                    spi_start <= 1;
-                    if (spi_start) spi_start <= 0;
-                    if (spi_done) state <= S_WRITE_REG_DONE;
-                end
-                
-                S_WRITE_REG_DONE: begin
-                    nrf_csn <= 1;        // Kéo CSN lên (K?t thúc transaction)
-                    state <= return_state; // Quay v? b??c ti?p theo
-                end
-
-                // ==========================================
-                // PH?N HO?T ??NG CHÍNH (Loop)
-                // ==========================================
-                
-                // 7. B?t ch? ?? l?ng nghe
+                // --- RX LOOP ---
                 S_RX_MODE: begin
-                    nrf_ce <= 1; // Enable RX
+                    nrf_ce <= 1; 
                     delay_cnt <= delay_cnt + 1;
-                    // Poll m?i ~2ms (gi? s? clock 125MHz)
-                    if (delay_cnt[17]) begin 
-                        delay_cnt <= 0;
-                        state <= S_POLL_STATUS;
-                    end
+                    // Poll nhanh h?n m?t chút ?? th?y ?èn nháy m??t
+//                    if (delay_cnt[16]) begin delay_cnt <= 0; state <= S_POLL_STATUS; end
+                    if (delay_cnt[3]) begin delay_cnt <= 0; state <= S_POLL_STATUS; end
                 end
                 
-                // 8. ??c tr?ng thái (Status Register)
                 S_POLL_STATUS: begin
-                    nrf_csn <= 0;
-                    spi_data_in <= CMD_R_REG | 5'h07; // Read Status (0x07)
-                    spi_start <= 1;
-                    if (spi_start) spi_start <= 0;
-                    if (spi_done) state <= S_READ_STATUS;
+                    nrf_csn <= 0; spi_data_in <= CMD_R_REG | 5'h07; spi_start <= 1;
+                    if (spi_start) spi_start <= 0; if (spi_done) state <= S_READ_STATUS;
                 end
                 
                 S_READ_STATUS: begin
-                    spi_data_in <= 0; // Dummy byte
-                    spi_start <= 1;
-                    if (spi_start) spi_start <= 0;
-                    if (spi_done) begin
-                        nrf_csn <= 1;
-                        state <= S_CHECK_FIFO;
-                    end
+                    spi_data_in <= 0; spi_start <= 1;
+                    if (spi_start) spi_start <= 0; 
+                    if (spi_done) begin nrf_csn <= 1; state <= S_CHECK_FIFO; end
                 end
                 
-                // 9. Ki?m tra xem có d? li?u m?i không?
                 S_CHECK_FIFO: begin
-                    // spi_data_out lúc này ch?a giá tr? Status
-                    if (spi_data_out[6]) begin // Bit 6 là RX_DR (Data Ready)
-                        state <= S_READ_CMD;
-                        byte_idx <= 0;
-                        nrf_ce <= 0; // T?m t?t CE khi ?ang ??c (optional nh?ng an toàn)
+                    // L?c nhi?u c? b?n: N?u ??c ra 0xFF ho?c 0x00 toàn b? thì kh? n?ng cao là l?i dây
+                    // Nh?ng ? ?ây ta c? ??c, vi?c l?c ?? ? b??c x? lý
+                    if (spi_data_out[6]) begin 
+                        state <= S_READ_CMD; byte_idx <= 0; 
                     end else begin
-                        state <= S_RX_MODE; // Không có gì, quay l?i nghe
+                        state <= S_RX_MODE;
                     end
                 end
                 
-                // 10. G?i l?nh ??c Payload
                 S_READ_CMD: begin
-                    nrf_csn <= 0;
-                    spi_data_in <= CMD_R_RX;
-                    spi_start <= 1;
-                    if (spi_start) spi_start <= 0;
-                    if (spi_done) state <= S_READ_BYTES;
+                    nrf_csn <= 0; spi_data_in <= CMD_R_RX; spi_start <= 1;
+                    if (spi_start) spi_start <= 0; if (spi_done) state <= S_READ_REQ;
                 end
                 
-                // 11. ??c liên ti?p 6 byte
-                S_READ_BYTES: begin
-                    spi_data_in <= 0; // Dummy
-                    spi_start <= 1;
-                    if (spi_start) spi_start <= 0;
+                // B??c 1: Kích ho?t SPI Start (Ch? 1 xung)
+                S_READ_REQ: begin
+                    spi_data_in <= 0; // Dummy byte
+                    spi_start <= 1;   // Pulse start
+                    state <= S_READ_WAIT; // Chuy?n ngay sang ch?
+                end
+                
+                // B??c 2: Ch? SPI Done và l?u d? li?u
+                S_READ_WAIT: begin
+                    spi_start <= 0; // ??m b?o start ?ã t?t
+                    
                     if (spi_done) begin
+                        // L?u d? li?u vào buffer
                         rx_buffer[byte_idx] <= spi_data_out;
+                        
+                        // Ki?m tra ?ã ?? 6 byte ch?a (index 0 ??n 5)
                         if (byte_idx == 5) begin
-                            nrf_csn <= 1;
+                            nrf_csn <= 1; // ??c xong -> Kéo CSN lên
                             state <= S_PROCESS_DATA;
                         end else begin
-                            byte_idx <= byte_idx + 1;
+                            byte_idx <= byte_idx + 1; // T?ng index
+                            state <= S_READ_REQ;      // Quay l?i b??c 1 ?? ??c byte ti?p theo
                         end
                     end
                 end
-                
-                // 12. X? lý d? li?u ra LED
+
+                // --- X? LÝ D? LI?U ---
                 S_PROCESS_DATA: begin
-                    leds_out[0] <= ~leds_out[0]; // Heartbeat: ??o tr?ng thái m?i khi nh?n gói tin
+                    // 1. LED 0: Heartbeat (Nh?p tim)
+                    // M?i l?n nh?n ???c gói tin thành công -> ??o tr?ng thái
+                    leds_out[0] <= ~leds_out[0]; 
+
+                    // 2. LED 1, 2, 3: Hi?n th? giá tr? Tr?c X (Byte cao)
+                    // rx_buffer[1] là X_High.
+                    // N?u Joystick ? gi?a: X ~ 512 -> High Byte = 2 (Binary: 0000 0010) -> LED 2 sáng
+                    // N?u Joystick Max: X ~ 1023 -> High Byte = 3 (Binary: 0000 0011) -> LED 2, LED 1 sáng
+                    // N?u Joystick Min: X ~ 0 -> High Byte = 0 (Binary: 0000 0000) -> T?t h?t
                     
-                    // Arduino g?i int (2 byte). Byte cao ch?a thông tin signifikant h?n cho vi?c hi?n th? ??n gi?n
-                    // [XL, XH, YL, YH, ZL, ZH]
-                    // N?u giá tr? > 256 (t?c byte cao > 0) -> Sáng ?èn
-                    leds_out[1] <= (rx_buffer[1] > 0); // X Axis
-                    leds_out[2] <= (rx_buffer[3] > 0); // Y Axis
-                    leds_out[3] <= (rx_buffer[5] > 0); // Z Axis
+                    // Gán tr?c ti?p 3 bit cu?i c?a Byte cao vào LED
+//                    leds_out[3:1] <= rx_buffer[0][7:5];
+                    leds_out[3:1] <= rx_buffer[0][2:0];
                     
-                    // Chu?n b? xóa c? ng?t
-                    spi_data_in <= CMD_W_REG | 5'h07;
-                    val_to_write <= 8'h40; // Ghi 1 vào bit RX_DR ?? xóa
-                    return_state <= S_RX_MODE;
-                    state <= S_WRITE_REG_CMD; // Dùng l?i quy trình ghi register
+                    x_out <= {rx_buffer[1], rx_buffer[0]};
+                    y_out <= {rx_buffer[3], rx_buffer[2]};
+                    z_out <= {rx_buffer[5], rx_buffer[4]};
+                    $display(rx_buffer);
+
+                    // Xóa c? ng?t
+                    spi_data_in <= CMD_W_REG | 5'h07; val_to_write <= 8'h40;
+                    return_state <= S_RX_MODE; state <= S_WRITE_REG_CMD;
                 end
                 
-                // Các state S_CLEAR_IRQ ?ã ???c g?p vào logic chung ? trên
-                
+                // --- SUBROUTINES ---
+                S_WRITE_REG_CMD: begin
+                    nrf_csn <= 0; spi_start <= 1; if (spi_start) spi_start <= 0; if (spi_done) state <= S_WRITE_REG_VAL;
+                end
+                S_WRITE_REG_VAL: begin
+                    spi_data_in <= val_to_write; spi_start <= 1; if (spi_start) spi_start <= 0; if (spi_done) state <= S_WRITE_REG_DONE;
+                end
+                S_WRITE_REG_DONE: begin nrf_csn <= 1; state <= return_state; end
+
             endcase
         end
     end

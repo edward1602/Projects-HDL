@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
-| Date             : Mon Nov 24 16:56:14 2025
+| Date             : Mon Nov 24 17:29:44 2025
 | Host             : myDELL running 64-bit major release  (build 9200)
 | Command          : report_power -file nrf_receiver_system_top_power_routed.rpt -pb nrf_receiver_system_top_power_summary_routed.pb -rpx nrf_receiver_system_top_power_routed.rpx
 | Design           : nrf_receiver_system_top
@@ -53,12 +53,12 @@ Table of Contents
 | On-Chip        | Power (W) | Used     | Available | Utilization (%) |
 +----------------+-----------+----------+-----------+-----------------+
 | Clocks         |     0.001 |        3 |       --- |             --- |
-| Slice Logic    |    <0.001 |      217 |       --- |             --- |
-|   LUT as Logic |    <0.001 |       86 |     53200 |            0.16 |
+| Slice Logic    |    <0.001 |      187 |       --- |             --- |
+|   LUT as Logic |    <0.001 |       79 |     53200 |            0.15 |
 |   CARRY4       |    <0.001 |        5 |     13300 |            0.04 |
-|   Register     |    <0.001 |      103 |    106400 |            0.10 |
+|   Register     |    <0.001 |       77 |    106400 |            0.07 |
 |   Others       |     0.000 |        3 |       --- |             --- |
-| Signals        |    <0.001 |      165 |       --- |             --- |
+| Signals        |    <0.001 |      133 |       --- |             --- |
 | I/O            |     0.001 |       11 |       125 |            8.80 |
 | Static Power   |     0.106 |          |           |                 |
 | Total          |     0.109 |          |           |                 |
@@ -71,7 +71,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) |
 +-----------+-------------+-----------+-------------+------------+
-| Vccint    |       1.000 |     0.010 |       0.002 |      0.007 |
+| Vccint    |       1.000 |     0.009 |       0.002 |      0.007 |
 | Vccaux    |       1.800 |     0.010 |       0.000 |      0.010 |
 | Vcco33    |       3.300 |     0.001 |       0.000 |      0.001 |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |

@@ -14,9 +14,9 @@ Starting synth_design
 Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
 INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
 INFO: Launching helper process for spawning children vivado processes
-INFO: Helper process launched with PID 22348 
+INFO: Helper process launched with PID 16664 
 ---------------------------------------------------------------------------------
-Starting RTL Elaboration : Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 409.977 ; gain = 96.773
+Starting RTL Elaboration : Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 410.531 ; gain = 97.188
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-6157] synthesizing module 'nrf_receiver_system_top' [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_receiver.v:3]
 INFO: [Synth 8-6157] synthesizing module 'spi_master' [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/spi_master.v:1]
@@ -39,26 +39,27 @@ INFO: [Synth 8-6157] synthesizing module 'nrf24l01_controller' [E:/Git_wp/Gestur
 	Parameter S_READ_CMD bound to: 10 - type: integer 
 	Parameter S_READ_BYTES bound to: 11 - type: integer 
 	Parameter S_PROCESS_DATA bound to: 12 - type: integer 
-	Parameter S_CLEAR_IRQ bound to: 13 - type: integer 
 	Parameter S_WRITE_REG_CMD bound to: 20 - type: integer 
 	Parameter S_WRITE_REG_VAL bound to: 21 - type: integer 
 	Parameter S_WRITE_REG_DONE bound to: 22 - type: integer 
 	Parameter CMD_W_REG bound to: 8'b00100000 
 	Parameter CMD_R_REG bound to: 8'b00000000 
 	Parameter CMD_R_RX bound to: 8'b01100001 
-INFO: [Synth 8-155] case statement is not full and has no default [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:69]
-WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[0] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:203]
-WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[2] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:203]
-WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[4] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:203]
-WARNING: [Synth 8-5788] Register spi_data_in_reg in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:82]
-WARNING: [Synth 8-5788] Register rx_buffer_reg[1] in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:203]
-WARNING: [Synth 8-5788] Register rx_buffer_reg[3] in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:203]
-WARNING: [Synth 8-5788] Register rx_buffer_reg[5] in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:203]
+INFO: [Synth 8-155] case statement is not full and has no default [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:49]
+WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[1] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:115]
+WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[2] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:115]
+WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[3] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:115]
+WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[4] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:115]
+WARNING: [Synth 8-6014] Unused sequential element rx_buffer_reg[5] was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:115]
+WARNING: [Synth 8-5788] Register spi_data_in_reg in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:57]
+WARNING: [Synth 8-5788] Register val_to_write_reg in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:57]
+WARNING: [Synth 8-5788] Register byte_idx_reg in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:100]
+WARNING: [Synth 8-5788] Register rx_buffer_reg[0] in module nrf24l01_controller is has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:115]
 INFO: [Synth 8-6155] done synthesizing module 'nrf24l01_controller' (2#1) [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v:1]
 INFO: [Synth 8-6155] done synthesizing module 'nrf_receiver_system_top' (3#1) [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_receiver.v:3]
 WARNING: [Synth 8-3331] design nrf_receiver_system_top has unconnected port nrf_irq
 ---------------------------------------------------------------------------------
-Finished RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 465.004 ; gain = 151.801
+Finished RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 465.418 ; gain = 152.074
 ---------------------------------------------------------------------------------
 
 Report Check Netlist: 
@@ -71,10 +72,10 @@ Report Check Netlist:
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 465.004 ; gain = 151.801
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 465.418 ; gain = 152.074
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 465.004 ; gain = 151.801
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 465.418 ; gain = 152.074
 ---------------------------------------------------------------------------------
 INFO: [Device 21-403] Loading part xc7z020clg400-1
 INFO: [Project 1-570] Preparing netlist for logic optimization
@@ -108,30 +109,29 @@ Completed Processing XDC Constraints
 INFO: [Project 1-111] Unisim Transformation Summary:
 No Unisim elements were transformed.
 
-Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.004 . Memory (MB): peak = 824.656 ; gain = 0.000
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.002 . Memory (MB): peak = 831.609 ; gain = 0.000
 ---------------------------------------------------------------------------------
-Finished Constraint Validation : Time (s): cpu = 00:00:09 ; elapsed = 00:00:13 . Memory (MB): peak = 824.656 ; gain = 511.453
+Finished Constraint Validation : Time (s): cpu = 00:00:10 ; elapsed = 00:00:13 . Memory (MB): peak = 831.609 ; gain = 518.266
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Loading Part and Timing Information
 ---------------------------------------------------------------------------------
 Loading part: xc7z020clg400-1
 ---------------------------------------------------------------------------------
-Finished Loading Part and Timing Information : Time (s): cpu = 00:00:09 ; elapsed = 00:00:13 . Memory (MB): peak = 824.656 ; gain = 511.453
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:10 ; elapsed = 00:00:13 . Memory (MB): peak = 831.609 ; gain = 518.266
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying 'set_property' XDC Constraints
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:09 ; elapsed = 00:00:13 . Memory (MB): peak = 824.656 ; gain = 511.453
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:10 ; elapsed = 00:00:13 . Memory (MB): peak = 831.609 ; gain = 518.266
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-802] inferred FSM for state register 'state_reg' in module 'spi_master'
 INFO: [Synth 8-5546] ROM "sck" won't be mapped to RAM because it is too sparse
 INFO: [Synth 8-5544] ROM "state" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
 INFO: [Synth 8-5544] ROM "mosi" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
-INFO: [Synth 8-5544] ROM "rx_buffer_reg[1]" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
-INFO: [Synth 8-5544] ROM "rx_buffer_reg[3]" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
-INFO: [Synth 8-5544] ROM "rx_buffer_reg[5]" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rx_buffer_reg[0]" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "state" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
 INFO: [Synth 8-5546] ROM "state" won't be mapped to RAM because it is too sparse
 INFO: [Synth 8-5544] ROM "byte_idx" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
 ---------------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ INFO: [Synth 8-5544] ROM "byte_idx" won't be mapped to Block RAM because address
 ---------------------------------------------------------------------------------------------------
 INFO: [Synth 8-3354] encoded FSM with state register 'state_reg' using encoding 'sequential' in module 'spi_master'
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:10 ; elapsed = 00:00:13 . Memory (MB): peak = 824.656 ; gain = 511.453
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:10 ; elapsed = 00:00:13 . Memory (MB): peak = 831.609 ; gain = 518.266
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -161,7 +161,7 @@ Detailed RTL Component Info :
 	   2 Input      3 Bit       Adders := 1     
 +---Registers : 
 	               20 Bit    Registers := 1     
-	                8 Bit    Registers := 7     
+	                8 Bit    Registers := 5     
 	                6 Bit    Registers := 1     
 	                5 Bit    Registers := 2     
 	                4 Bit    Registers := 2     
@@ -175,8 +175,8 @@ Detailed RTL Component Info :
 	  17 Input      3 Bit        Muxes := 2     
 	  17 Input      2 Bit        Muxes := 1     
 	   3 Input      1 Bit        Muxes := 1     
-	   2 Input      1 Bit        Muxes := 17    
-	  17 Input      1 Bit        Muxes := 8     
+	   2 Input      1 Bit        Muxes := 16    
+	  17 Input      1 Bit        Muxes := 5     
 	   6 Input      1 Bit        Muxes := 1     
 	   4 Input      1 Bit        Muxes := 1     
 ---------------------------------------------------------------------------------
@@ -208,7 +208,7 @@ Detailed RTL Component Info :
 	   2 Input      3 Bit       Adders := 1     
 +---Registers : 
 	               20 Bit    Registers := 1     
-	                8 Bit    Registers := 5     
+	                8 Bit    Registers := 3     
 	                5 Bit    Registers := 2     
 	                4 Bit    Registers := 1     
 	                3 Bit    Registers := 1     
@@ -219,8 +219,8 @@ Detailed RTL Component Info :
 	   2 Input      4 Bit        Muxes := 1     
 	  17 Input      3 Bit        Muxes := 2     
 	  17 Input      2 Bit        Muxes := 1     
-	  17 Input      1 Bit        Muxes := 8     
-	   2 Input      1 Bit        Muxes := 5     
+	  17 Input      1 Bit        Muxes := 5     
+	   2 Input      1 Bit        Muxes := 4     
 	   6 Input      1 Bit        Muxes := 1     
 	   4 Input      1 Bit        Muxes := 1     
 ---------------------------------------------------------------------------------
@@ -241,16 +241,27 @@ Start Cross Boundary and Area Optimization
 Warning: Parallel synthesis criteria is not met 
 INFO: [Synth 8-5546] ROM "ctrl_inst/state" won't be mapped to RAM because it is too sparse
 WARNING: [Synth 8-3331] design nrf_receiver_system_top has unconnected port nrf_irq
-INFO: [Synth 8-3886] merging instance 'ctrl_inst/val_to_write_reg[4]' (FDCE) to 'ctrl_inst/return_state_reg[3]'
-INFO: [Synth 8-3886] merging instance 'ctrl_inst/val_to_write_reg[7]' (FDCE) to 'ctrl_inst/return_state_reg[3]'
+INFO: [Synth 8-3886] merging instance 'ctrl_inst/val_to_write_reg[4]' (FDE) to 'ctrl_inst/val_to_write_reg[7]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\ctrl_inst/val_to_write_reg[7] )
 INFO: [Synth 8-3886] merging instance 'ctrl_inst/return_state_reg[4]' (FDCE) to 'ctrl_inst/return_state_reg[3]'
 INFO: [Synth 8-3333] propagating constant 0 across sequential element (\ctrl_inst/return_state_reg[3] )
 INFO: [Synth 8-3333] propagating constant 0 across sequential element (\ctrl_inst/spi_data_in_reg[7] )
+WARNING: [Synth 8-3332] Sequential element (ctrl_inst/return_state_reg[3]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (ctrl_inst/val_to_write_reg[7]) is unused and will be removed from module nrf_receiver_system_top.
 WARNING: [Synth 8-3332] Sequential element (ctrl_inst/spi_data_in_reg[7]) is unused and will be removed from module nrf_receiver_system_top.
 WARNING: [Synth 8-3332] Sequential element (spi_inst/shift_reg_reg[7]) is unused and will be removed from module nrf_receiver_system_top.
-WARNING: [Synth 8-3332] Sequential element (ctrl_inst/return_state_reg[3]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (spi_inst/data_out_reg[4]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (spi_inst/data_out_reg[3]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (spi_inst/data_out_reg[2]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (spi_inst/data_out_reg[1]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (spi_inst/data_out_reg[0]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (ctrl_inst/rx_buffer_reg[0][4]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (ctrl_inst/rx_buffer_reg[0][3]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (ctrl_inst/rx_buffer_reg[0][2]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (ctrl_inst/rx_buffer_reg[0][1]) is unused and will be removed from module nrf_receiver_system_top.
+WARNING: [Synth 8-3332] Sequential element (ctrl_inst/rx_buffer_reg[0][0]) is unused and will be removed from module nrf_receiver_system_top.
 ---------------------------------------------------------------------------------
-Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:11 ; elapsed = 00:00:15 . Memory (MB): peak = 824.656 ; gain = 511.453
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:11 ; elapsed = 00:00:14 . Memory (MB): peak = 831.609 ; gain = 518.266
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start ROM, RAM, DSP and Shift Register Reporting
@@ -283,13 +294,13 @@ Report RTL Partitions:
 Start Applying XDC Timing Constraints
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:18 ; elapsed = 00:00:23 . Memory (MB): peak = 824.656 ; gain = 511.453
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:18 ; elapsed = 00:00:23 . Memory (MB): peak = 831.609 ; gain = 518.266
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Timing Optimization
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Timing Optimization : Time (s): cpu = 00:00:18 ; elapsed = 00:00:23 . Memory (MB): peak = 845.848 ; gain = 532.645
+Finished Timing Optimization : Time (s): cpu = 00:00:18 ; elapsed = 00:00:23 . Memory (MB): peak = 843.402 ; gain = 530.059
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -300,9 +311,9 @@ Report RTL Partitions:
 ---------------------------------------------------------------------------------
 Start Technology Mapping
 ---------------------------------------------------------------------------------
-INFO: [Synth 8-3886] merging instance 'ctrl_inst/val_to_write_reg[3]' (FDCE) to 'ctrl_inst/val_to_write_reg[0]'
+INFO: [Synth 8-3886] merging instance 'ctrl_inst/val_to_write_reg[0]' (FDE) to 'ctrl_inst/val_to_write_reg[3]'
 ---------------------------------------------------------------------------------
-Finished Technology Mapping : Time (s): cpu = 00:00:18 ; elapsed = 00:00:23 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished Technology Mapping : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -326,7 +337,7 @@ Start Final Netlist Cleanup
 Finished Final Netlist Cleanup
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished IO Insertion : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished IO Insertion : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
 
 Report Check Netlist: 
@@ -339,7 +350,7 @@ Report Check Netlist:
 Start Renaming Generated Instances
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Instances : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -351,25 +362,25 @@ Report RTL Partitions:
 Start Rebuilding User Hierarchy
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Ports
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Ports : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Nets
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Nets : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Writing Synthesis Report
@@ -387,15 +398,15 @@ Report Cell Usage:
 +------+-------+------+
 |1     |BUFG   |     1|
 |2     |CARRY4 |     5|
-|3     |LUT1   |     2|
-|4     |LUT2   |     9|
-|5     |LUT3   |    34|
-|6     |LUT4   |    12|
-|7     |LUT5   |    16|
-|8     |LUT6   |    33|
-|9     |FDCE   |    71|
+|3     |LUT1   |     1|
+|4     |LUT2   |     4|
+|5     |LUT3   |    39|
+|6     |LUT4   |     9|
+|7     |LUT5   |    25|
+|8     |LUT6   |    24|
+|9     |FDCE   |    58|
 |10    |FDPE   |     1|
-|11    |FDRE   |    31|
+|11    |FDRE   |    18|
 |12    |IBUF   |     3|
 |13    |OBUF   |     8|
 +------+-------+------+
@@ -404,16 +415,16 @@ Report Instance Areas:
 +------+------------+--------------------+------+
 |      |Instance    |Module              |Cells |
 +------+------------+--------------------+------+
-|1     |top         |                    |   226|
-|2     |  ctrl_inst |nrf24l01_controller |   158|
-|3     |  spi_inst  |spi_master          |    56|
+|1     |top         |                    |   196|
+|2     |  ctrl_inst |nrf24l01_controller |   130|
+|3     |  spi_inst  |spi_master          |    54|
 +------+------------+--------------------+------+
 ---------------------------------------------------------------------------------
-Finished Writing Synthesis Report : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:19 ; elapsed = 00:00:23 . Memory (MB): peak = 845.531 ; gain = 532.188
 ---------------------------------------------------------------------------------
-Synthesis finished with 0 errors, 0 critical warnings and 4 warnings.
-Synthesis Optimization Runtime : Time (s): cpu = 00:00:11 ; elapsed = 00:00:16 . Memory (MB): peak = 847.785 ; gain = 174.930
-Synthesis Optimization Complete : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 847.785 ; gain = 534.582
+Synthesis finished with 0 errors, 0 critical warnings and 15 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:10 ; elapsed = 00:00:14 . Memory (MB): peak = 845.531 ; gain = 165.996
+Synthesis Optimization Complete : Time (s): cpu = 00:00:19 ; elapsed = 00:00:24 . Memory (MB): peak = 845.531 ; gain = 532.188
 INFO: [Project 1-571] Translating synthesized netlist
 INFO: [Netlist 29-17] Analyzing 8 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -423,11 +434,11 @@ INFO: [Project 1-111] Unisim Transformation Summary:
 No Unisim elements were transformed.
 
 INFO: [Common 17-83] Releasing license: Synthesis
-37 Infos, 18 Warnings, 6 Critical Warnings and 0 Errors encountered.
+36 Infos, 31 Warnings, 6 Critical Warnings and 0 Errors encountered.
 synth_design completed successfully
-synth_design: Time (s): cpu = 00:00:20 ; elapsed = 00:00:26 . Memory (MB): peak = 847.785 ; gain = 547.238
+synth_design: Time (s): cpu = 00:00:21 ; elapsed = 00:00:25 . Memory (MB): peak = 847.648 ; gain = 547.004
 WARNING: [Constraints 18-5210] No constraint will be written out.
 INFO: [Common 17-1381] The checkpoint 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.runs/synth_1/nrf_receiver_system_top.dcp' has been generated.
 INFO: [runtcl-4] Executing : report_utilization -file nrf_receiver_system_top_utilization_synth.rpt -pb nrf_receiver_system_top_utilization_synth.pb
-report_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.021 . Memory (MB): peak = 847.785 ; gain = 0.000
-INFO: [Common 17-206] Exiting Vivado at Mon Nov 24 16:55:14 2025...
+report_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.040 . Memory (MB): peak = 847.648 ; gain = 0.000
+INFO: [Common 17-206] Exiting Vivado at Mon Nov 24 17:28:46 2025...

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module nrf_receiver_system_top(
+module top(
     input wire clk,           // H16 (125MHz)
     input wire reset_btn,     // D19
     output wire [3:0] leds,   // R14, P14, N16, M14
@@ -17,6 +17,10 @@ module nrf_receiver_system_top(
     wire spi_start, spi_done;
     wire [7:0] spi_din, spi_dout;
     wire rst = reset_btn;
+    
+    wire [15:0] x_out;
+    wire [15:0] y_out;
+    wire [15:0] z_out;
 
     // Instantiate SPI Master
     spi_master spi_inst (
@@ -41,7 +45,10 @@ module nrf_receiver_system_top(
         .spi_data_out(spi_dout),
         .spi_done(spi_done),
         .nrf_csn(nrf_csn),
-        .nrf_ce(nrf_ce)
+        .nrf_ce(nrf_ce),
+        .x_out(x_out),
+        .y_out(y_out),
+        .z_out(z_out)
     );
 
 endmodule

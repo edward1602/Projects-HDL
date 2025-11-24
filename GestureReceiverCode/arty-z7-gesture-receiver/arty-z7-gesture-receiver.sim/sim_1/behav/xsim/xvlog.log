@@ -6,3 +6,6 @@ INFO: [VRFC 10-2263] Analyzing Verilog file "E:/Git_wp/Gesture_Control_Robot/Ges
 INFO: [VRFC 10-311] analyzing module top
 INFO: [VRFC 10-2263] Analyzing Verilog file "E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_top.v" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module tb_top
+WARNING: [VRFC 10-2019] loop variable declaration is not allowed in this mode of verilog [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_top.v:57]
+ERROR: [VRFC 10-552] declarations not allowed in unnamed block [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_top.v:186]
+ERROR: [VRFC 10-2787] module tb_top ignored due to previous errors [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_top.v:3]

@@ -1,0 +1,20 @@
+Vivado Simulator 2018.2
+Time resolution is 1 ps
+START SIMULATION: Full Hardware Behavior Model
+Config Done. Waiting for RX...
+--- Sending Burst Payload ---
+'{78,78,78,78,78,78}
+'{78,78,78,78,78,78}
+'{78,14,14,14,14,14}
+'{94,94,94,94,94,94}
+'{94,94,94,94,94,94}
+'{94,1,1,1,1,1}
+'{205,205,205,205,205,205}
+'{205,205,205,205,205,205}
+'{205,171,171,171,171,171}
+---------------------------------------------------
+FAILED: Mismatch
+RECEIVED: X=abcd | Y=abab | Z=abab
+EXPECTED: X=01aa | Y=015e | Z=abcd
+---------------------------------------------------
+$finish called at time : 117877 ns : File "E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_top.v" Line 159

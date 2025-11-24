@@ -2,162 +2,234 @@
 
 module tb_top;
 
-    // --- 1. Inputs ---
-    reg clk;
-    reg reset_btn;
-    reg nrf_miso;
-    reg nrf_irq;
-
-    // --- 2. Outputs ---
-    wire [3:0] leds;
-    wire nrf_ce;
-    wire nrf_csn;
-    wire nrf_sck;
-    wire nrf_mosi;
+    // --- Tín hi?u ??u vào cho DUT ---
+    reg         clk;
+    reg         rst_n;
+    reg         nrf_miso;
+    reg         nrf_irq_n;
     
-    // Wires debug
-    wire [15:0] x_out;
-    wire [15:0] y_out;
-    wire [15:0] z_out;
+    // --- Tín hi?u ??u ra t? DUT ---
+    wire        nrf_mosi;
+    wire        nrf_sck;
+    wire        nrf_csn;
+    wire        nrf_ce;
+    wire [47:0] data_received;
+    wire        data_valid;
 
-    // Instantiate TOP
-    top uut (
-        .clk(clk),
-        .reset_btn(reset_btn),
-        .leds(leds),
-        .nrf_ce(nrf_ce),
-        .nrf_csn(nrf_csn),
-        .nrf_sck(nrf_sck),
-        .nrf_mosi(nrf_mosi),
-        .nrf_miso(nrf_miso),
-        .nrf_irq(nrf_irq)
+    // --- Kh?i t?o DUT (Device Under Test) ---
+    top dut (
+        .clk            (clk),
+        .rst_n          (rst_n),
+        .nrf_miso       (nrf_miso),
+        .nrf_irq_n      (nrf_irq_n),
+        .nrf_mosi       (nrf_mosi),
+        .nrf_sck        (nrf_sck),
+        .nrf_csn        (nrf_csn),
+        .nrf_ce         (nrf_ce),
+        .data_received  (data_received),
+        .data_valid     (data_valid)
     );
-    
-    assign x_out = uut.x_out;
-    assign y_out = uut.y_out;
-    assign z_out = uut.z_out;
 
-    always #4 clk = ~clk;
+    // --- Bi?n mô ph?ng nRF24L01 ---
+    reg [7:0] nrf_registers [0:31];    // M?ng thanh ghi gi? l?p
+    reg [7:0] rx_fifo [0:5];           // FIFO ch?a 6 bytes payload
+    reg [7:0] spi_rx_byte;             // Byte nh?n ???c t? MOSI
+    reg [7:0] spi_tx_byte;             // Byte s? tr? v? qua MISO
+    integer   bit_index;               // ??m bit trong SPI transaction
+    reg       spi_active;              // ?ánh d?u ?ang trong SPI transaction
+    reg [7:0] current_command;         // L?u l?nh hi?n t?i
+    integer   payload_byte_count;      // ??m byte payload ?ang truy?n
 
-    // --- TASK 1: SINGLE BYTE REPLY (Dùng cho Config & Polling) ---
-    // Chip NRF th?t: Khi CSN xu?ng, nó g?i Status Byte, nh?n Command Byte, r?i CSN lên.
-    task spi_slave_reply;
-        input [7:0] status_response;
-        integer i;
-        begin
-            wait(nrf_csn == 0);
-            #1; nrf_miso = status_response[7]; // Setup bit ??u
+    // --- T?o clock 50MHz (chu k? 20ns) ---
+    initial begin
+        clk = 0;
+        forever #10 clk = ~clk;
+    end
 
-            for (i = 7; i >= 0; i = i - 1) begin
-                @(posedge nrf_sck); 
-                @(negedge nrf_sck); 
-                #1;
-                if (i > 0) nrf_miso = status_response[i-1];
-            end
-            
-            wait(nrf_csn == 1);
-            #1; nrf_miso = 0;
+    // --- Kh?i t?o giá tr? ban ??u ---
+    initial begin
+        // Kh?i t?o tín hi?u
+        rst_n = 0;
+        nrf_miso = 1'b0;
+        nrf_irq_n = 1'b1;  // IRQ idle ? m?c cao (active low)
+        
+        // Kh?i t?o thanh ghi gi? l?p nRF24L01
+        for (integer i = 0; i < 32; i = i + 1) begin
+            nrf_registers[i] = 8'h00;
         end
-    endtask
-    
-    // --- TASK 2: BURST READ PAYLOAD (Dùng cho Data Read) ---
-    // Chip NRF th?t: CSN xu?ng -> G?i Status -> G?i Data 0..5 -> CSN lên
-    task spi_simulate_burst_read;
-            input [7:0] status_byte;      // Byte ph?n h?i ??u tiên
-            input [7:0] b0, b1, b2, b3, b4, b5; // 6 Byte d? li?u Payload
-            reg [7:0] buffer [0:6];       // T?ng c?ng 7 byte
-            integer k, bit_idx;
-            begin
-                // Chu?n b? d? li?u
-                buffer[0] = status_byte; 
-                buffer[1] = b0; buffer[2] = b1;
-                buffer[3] = b2; buffer[4] = b3;
-                buffer[5] = b4; buffer[6] = b5;
-    
-                // 1. Ch? b?t ??u transaction
-                wait(nrf_csn == 0);
+        nrf_registers[7] = 8'h0E;  // STATUS register initial value
+        
+        // Kh?i t?o payload test (6 bytes: 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)
+        rx_fifo[0] = 8'hAA;
+        rx_fifo[1] = 8'hBB;
+        rx_fifo[2] = 8'hCC;
+        rx_fifo[3] = 8'hDD;
+        rx_fifo[4] = 8'hEE;
+        rx_fifo[5] = 8'hFF;
+        
+        spi_active = 0;
+        bit_index = 0;
+        payload_byte_count = 0;
+        
+        // Dump waveform
+        $dumpfile("tb_top.vcd");
+        $dumpvars(0, tb_top);
+        
+        // Reset h? th?ng
+        #100;
+        rst_n = 1;
+        $display("[%0t] Reset released, system starting...", $time);
+        
+        // Ch? h? th?ng kh?i t?o (c?u hình nRF24L01)
+        #200000;  // Ch? ~200us cho quá trình init
+        
+        // Kích ho?t IRQ ?? báo có d? li?u (simulate data arrival)
+        $display("[%0t] Simulating data arrival - Pulling IRQ low", $time);
+        nrf_irq_n = 1'b0;
+        
+        // Ch? ??c xong payload
+        wait(data_valid == 1'b1);
+        #40;
+        $display("[%0t] *** DATA RECEIVED ***", $time);
+        $display("    Payload = 0x%012X", data_received);
+        $display("    Expected: 0xAABBCCDDEEFF");
+        
+        if (data_received == 48'hAABBCCDDEEFF)
+            $display("    >>> TEST PASSED! <<<");
+        else
+            $display("    >>> TEST FAILED! <<<");
+        
+        // Th? IRQ lên cao sau khi clear
+        #1000;
+        nrf_irq_n = 1'b1;
+        
+        // Test thêm 1 gói n?a v?i d? li?u khác
+        #50000;
+        $display("\n[%0t] Sending second packet...", $time);
+        rx_fifo[0] = 8'h11;
+        rx_fifo[1] = 8'h22;
+        rx_fifo[2] = 8'h33;
+        rx_fifo[3] = 8'h44;
+        rx_fifo[4] = 8'h55;
+        rx_fifo[5] = 8'h66;
+        nrf_irq_n = 1'b0;
+        
+        wait(data_valid == 1'b1);
+        #40;
+        $display("[%0t] *** SECOND DATA RECEIVED ***", $time);
+        $display("    Payload = 0x%012X", data_received);
+        $display("    Expected: 0x112233445566");
+        
+        if (data_received == 48'h112233445566)
+            $display("    >>> TEST PASSED! <<<");
+        else
+            $display("    >>> TEST FAILED! <<<");
+        
+        #10000;
+        $display("\n[%0t] Simulation completed", $time);
+        $finish;
+    end
+
+    // --- Mô ph?ng hành vi SPI Slave c?a nRF24L01 ---
+    // Detect b?t ??u SPI transaction (CSN falling edge)
+    always @(negedge nrf_csn) begin
+        if (!spi_active) begin
+            spi_active = 1;
+            bit_index = 0;
+            spi_rx_byte = 8'h00;
+            payload_byte_count = 0;
+            $display("[%0t] SPI Transaction START (CSN Low)", $time);
+        end
+    end
+
+    // Detect k?t thúc SPI transaction (CSN rising edge)
+    always @(posedge nrf_csn) begin
+        if (spi_active) begin
+            spi_active = 0;
+            $display("[%0t] SPI Transaction END (CSN High)", $time);
+        end
+    end
+
+    // X? lý SPI trên m?i c?nh lên c?a SCK
+    always @(posedge nrf_sck) begin
+        if (spi_active && !nrf_csn) begin
+            // Nh?n bit t? MOSI (Master -> Slave)
+            spi_rx_byte = {spi_rx_byte[6:0], nrf_mosi};
+            bit_index = bit_index + 1;
+            
+            // Khi nh?n ?? 8 bit
+            if (bit_index == 8) begin
+                bit_index = 0;
                 
-                // Setup bit ??u tiên c?a Byte 0 (Status) ngay l?p t?c
-                #1; nrf_miso = buffer[0][7];
-    
-                // 2. Loop qua toàn b? 7 bytes liên t?c
-                for (k = 0; k < 7; k = k + 1) begin
-                    for (bit_idx = 7; bit_idx >= 0; bit_idx = bit_idx - 1) begin
-                        @(posedge nrf_sck); // FPGA Sample
-                        @(negedge nrf_sck); // FPGA Shift
-                        
-                        #1; // Delay timing an toàn
-                        
-                        // Logic l?y bit ti?p theo
-                        if (bit_idx > 0) 
-                            nrf_miso = buffer[k][bit_idx-1];
-                        else if (k < 6) 
-                            nrf_miso = buffer[k+1][7]; // Chuy?n sang bit 7 c?a byte k? ti?p
+                // Byte ??u tiên là command
+                if (payload_byte_count == 0) begin
+                    current_command = spi_rx_byte;
+                    $display("[%0t]   Received Command: 0x%02X", $time, spi_rx_byte);
+                    
+                    // Chu?n b? byte tr? v? (STATUS register cho byte ??u)
+                    spi_tx_byte = nrf_registers[7]; // STATUS
+                    
+                    // X? lý command
+                    if ((spi_rx_byte & 8'hE0) == 8'h20) begin
+                        // Write Register
+                        $display("[%0t]   -> Write Register to addr 0x%02X", $time, spi_rx_byte & 8'h1F);
+                    end else if (spi_rx_byte == 8'h61) begin
+                        // Read RX Payload
+                        $display("[%0t]   -> Read RX Payload", $time);
+                        // Byte ti?p theo s? là payload[0]
+                    end
+                    
+                end else begin
+                    // Các byte ti?p theo là data
+                    
+                    // X? lý Write Register
+                    if ((current_command & 8'hE0) == 8'h20) begin
+                        integer addr;
+                        addr = current_command & 8'h1F;
+                        nrf_registers[addr] = spi_rx_byte;
+                        $display("[%0t]   Write: Reg[0x%02X] = 0x%02X", $time, addr, spi_rx_byte);
+                    end
+                    
+                    // Chu?n b? byte tr? v? ti?p theo
+                    if (current_command == 8'h61) begin
+                        // ?ang ??c payload, tr? v? byte t? FIFO
+                        if (payload_byte_count <= 6) begin
+                            spi_tx_byte = rx_fifo[payload_byte_count - 1];
+                            $display("[%0t]   Sending payload[%0d] = 0x%02X", 
+                                    $time, payload_byte_count-1, spi_tx_byte);
+                        end
+                    end else begin
+                        spi_tx_byte = 8'h00;  // Dummy
                     end
                 end
                 
-                // 3. K?t thúc transaction
-                wait(nrf_csn == 1);
-                #1; nrf_miso = 0;
+                payload_byte_count = payload_byte_count + 1;
+                spi_rx_byte = 8'h00;
             end
-        endtask
+        end
+    end
 
-    // --- MAIN TEST ---
-    localparam [15:0] X_EXP = 16'b0000000110101010; 
-    localparam [15:0] Y_EXP = 16'b0000000101011110; 
-    localparam [15:0] Z_EXP = 16'b1010101111001101; 
+    // G?i bit ra MISO trên c?nh xu?ng c?a SCK (SPI Mode 0)
+    always @(negedge nrf_sck or negedge nrf_csn) begin
+        if (!nrf_csn && spi_active) begin
+            // Shift bit cao nh?t ra MISO
+            nrf_miso <= spi_tx_byte[7];
+            spi_tx_byte <= {spi_tx_byte[6:0], 1'b0};
+        end
+    end
 
+    // Monitor các s? ki?n quan tr?ng
+    always @(posedge data_valid) begin
+        $display("\n========================================");
+        $display("  DATA VALID PULSE DETECTED!");
+        $display("  Received Payload: 0x%012X", data_received);
+        $display("========================================\n");
+    end
+
+    // Timeout watchdog
     initial begin
-        clk = 0; reset_btn = 1; nrf_miso = 0; nrf_irq = 1;
-        #100; reset_btn = 0;
-
-        $display("START SIMULATION: Full Hardware Behavior Model");
-
-        // B. Config Sequence (12 transactions)
-        repeat(12) begin
-            spi_slave_reply(8'b00001110); // Status 0x0E
-            // L?u ý: Controller c?a b?n g?i 2 byte m?i l?n config (Cmd + Val)
-            // spi_slave_reply ? ?ây x? lý t?ng CSN toggle m?t.
-            // N?u controller b?n g?i Cmd -> CSN lên -> Val -> CSN lên, thì repeat(12) là ?úng.
-        end
-        
-        $display("Config Done. Waiting for RX...");
-        wait(nrf_ce == 1);
-
-        // C. Data Ready Simulation
-        // 1. Poll Status -> Tr? l?i Data Ready (0x4E)
-        spi_slave_reply(8'b00001110); // Response cho Byte Command Read Status
-        spi_slave_reply(8'b01001110); // Response giá tr? Status (0x4E)
-        
-        // 2. Read Payload (Burst 7 Bytes: 1 Status + 6 Data)
-        $display("--- Sending Burst Payload ---");
-        
-        spi_simulate_burst_read(
-            8'b00001110,            // Byte 0: Status
-            8'b10101010, 8'b00000001, // X: 0xAA, 0x01
-            8'b01011110, 8'b00000001, // Y: 0x5E, 0x01
-            8'b11001101, 8'b10101011  // Z: 0xCD, 0xAB
-        );
-
-        // 3. Clear IRQ
-        #200;
-        spi_slave_reply(8'b00001110); 
-        spi_slave_reply(8'b00001110);
-
-        // D. Check
-        if (x_out === X_EXP && y_out === Y_EXP && z_out === Z_EXP) begin
-            $display("---------------------------------------------------");
-            $display("PASSED: Simulation matches Hardware Behavior!");
-            $display("RECEIVED: X=%h | Y=%h | Z=%h", x_out, y_out, z_out);
-            $display("---------------------------------------------------");
-        end else begin
-            $display("---------------------------------------------------");
-            $display("FAILED: Mismatch");
-            $display("RECEIVED: X=%h | Y=%h | Z=%h", x_out, y_out, z_out);
-            $display("EXPECTED: X=%h | Y=%h | Z=%h", X_EXP, Y_EXP, Z_EXP);
-            $display("---------------------------------------------------");
-        end
-        
+        #5000000;  // 5ms timeout
+        $display("\n!!! TIMEOUT - Test did not complete in time !!!");
         $finish;
     end
 

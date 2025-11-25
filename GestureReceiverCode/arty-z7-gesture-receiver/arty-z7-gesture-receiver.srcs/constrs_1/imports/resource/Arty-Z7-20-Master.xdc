@@ -95,7 +95,7 @@ set_property -dict { PACKAGE_PIN T15    IOSTANDARD LVCMOS33 } [get_ports { motor
 #set_property -dict { PACKAGE_PIN R16    IOSTANDARD LVCMOS33 } [get_ports { ck_io6  }]; #IO_L19P_T3_34            Sch=CK_IO6
 #set_property -dict { PACKAGE_PIN U17    IOSTANDARD LVCMOS33 } [get_ports { ck_io7  }]; #IO_L9N_T1_DQS_34         Sch=CK_IO7
 
-## NRF24L01 CONTROL (IO8 -> IO13)
+## NRF24L01 CONTROL (IO8 -> IO13) Trang - Cam - Tim - Duong - Vang - La
 set_property -dict { PACKAGE_PIN V17    IOSTANDARD LVCMOS33 } [get_ports { nrf_irq }]; #IO_L21P_T3_DQS_34        Sch=CK_IO8
 set_property -dict { PACKAGE_PIN V18    IOSTANDARD LVCMOS33 } [get_ports { nrf_ce  }]; #IO_L21N_T3_DQS_34        Sch=CK_IO9
 set_property -dict { PACKAGE_PIN T16    IOSTANDARD LVCMOS33 } [get_ports { nrf_csn }]; #IO_L9P_T1_DQS_34         Sch=CK_IO10

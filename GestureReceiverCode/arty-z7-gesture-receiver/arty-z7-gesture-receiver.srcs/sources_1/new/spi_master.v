@@ -1,106 +1,138 @@
-module spi_master #(
-    parameter PRESCALER = 50  // T?c ?? SPI = System_Clock / (2 * PRESCALER)
-                              // Ví d?: Clk=50MHz, PRESCALER=25 -> SPI=1MHz
-)(
-    input  wire       clk,        // System Clock
-    input  wire       rst_n,      // Reset Active Low
-    input  wire       start,      // Xung kích ho?t b?t ??u g?i 1 byte
-    input  wire [7:0] data_in,    // D? li?u c?n g?i (Tx)
+module spi_master (
+    // Clock và Reset
+    input clk,
+    input rst_n,
     
-    input  wire       miso,       // Master In Slave Out (t? nRF24L01)
-    output wire       mosi,       // Master Out Slave In (t?i nRF24L01)
-    output reg        sck,        // SPI Clock
+    // Tham s? chia t?n s? SCK
+    input [7:0] spi_clk_div, 
     
-    output reg [7:0]  data_out,   // D? li?u nh?n ???c (Rx)
-    output reg        busy,       // =1 khi ?ang truy?n
-    output reg        done        // B?t lên 1 trong 1 chu k? clock khi hoàn t?t
+    // COntroller
+    input start_transfer,
+    output reg transfer_done,
+    
+    // Output
+    input [7:0] data_in,
+    output reg [7:0] data_out,
+
+    // Giao di?n SPI
+    output reg spi_sck, // reg vì ???c ?i?u khi?n trong always
+    output reg spi_mosi, // reg vì ???c ?i?u khi?n trong always
+    input spi_miso
 );
 
-    // Các tr?ng thái FSM
-    localparam IDLE  = 2'b00;
-    localparam WORK  = 2'b01;
+    // ??nh ngh?a các h?ng s? tr?ng thái (thay vì enum)
+    `define IDLE     2'b00
+    `define TRANSMIT 2'b01
+    `define DONE     2'b10
     
-    reg [1:0] state;
-    reg [7:0] tx_buffer;     // Thanh ghi d?ch truy?n
-    reg [7:0] rx_buffer;     // Thanh ghi d?ch nh?n
-    reg [3:0] bit_cnt;       // ??m s? bit ?ã truy?n (0-7)
+    // Các thanh ghi tr?ng thái (reg)
+    reg [1:0] current_state, next_state;
     
-    // B? ??m chia xung
-    integer clk_cnt; 
+    // B? ??m xung ??ng h? SPI (reg)
+    reg [7:0] sck_counter;
     
-    // Logic t?o c?nh xung cho SPI Mode 0
-    // sample_edge: C?nh lên (Rising) -> nRF ??c d? li?u, FPGA ??c MISO
-    // shift_edge:  C?nh xu?ng (Falling) -> FPGA ??y bit ti?p theo ra MOSI
-    wire sample_edge = (clk_cnt == PRESCALER - 1);
-    wire shift_edge  = (clk_cnt == (PRESCALER * 2) - 1);
+    // Tín hi?u ?ánh d?u s? ki?n SCK (reg)
+    reg sck_tick; 
+    
+    // B? ??m bit (reg)
+    reg [3:0] bit_counter;
+    
+    // Thanh ghi t?m th?i cho d? li?u (reg)
+    reg [7:0] shift_reg_tx, shift_reg_rx;
 
-    // Gán MOSI luôn là bit cao nh?t c?a tx_buffer
-    assign mosi = tx_buffer[7];
-
+    // ----------------------------------------------------
+    // 1. Logic Chuy?n tr?ng thái t? h?p (next_state logic)
+    // ----------------------------------------------------
+    always @(current_state or start_transfer or bit_counter) begin
+        next_state = current_state; // M?c ??nh gi? nguyên tr?ng thái
+        case (current_state)
+            `IDLE: begin
+                if (start_transfer) // Get cmd from controller
+                    next_state = `TRANSMIT;
+            end
+    
+            `TRANSMIT: begin
+                if (bit_counter == 8) // Done transmit 1 byte (8 bits) 
+                    next_state = `DONE;
+            end
+    
+            `DONE: begin
+                next_state = `IDLE;
+            end
+            default: next_state = `IDLE;
+        endcase
+    end
+    
+    // ----------------------------------------------------
+    // 2. Logic Tu?n t? (Xung clock, D?ch chuy?n, ??ng ký tr?ng thái)
+    // ----------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            state       <= IDLE;
-            sck         <= 1'b0;      // Mode 0: SCK idle LOW
-            tx_buffer   <= 8'b0;
-            rx_buffer   <= 8'b0;
-            data_out    <= 8'b0;
-            bit_cnt     <= 4'd0;
-            clk_cnt     <= 0;
-            busy        <= 1'b0;
-            done        <= 1'b0;
-        end else begin
-            // M?c ??nh reset tín hi?u done
-            done <= 1'b0;
+            // Reset
+            current_state <= `IDLE;
+            transfer_done <= 1'b0;
+            bit_counter <= 4'h0;
+            shift_reg_tx <= 8'h00;
+            shift_reg_rx <= 8'h00;
+            data_out <= 8'h00;
             
-            case (state)
-                IDLE: begin
-                    busy    <= 1'b0;
-                    sck     <= 1'b0;
-                    clk_cnt <= 0;
-                    
-                    if (start) begin
-                        busy      <= 1'b1;
-                        tx_buffer <= data_in; // Load d? li?u vào buffer
-                        bit_cnt   <= 4'd0;
-                        state     <= WORK;
-                        // L?u ý: V?i Mode 0, bit MSB (bit 7) ph?i xu?t hi?n trên MOSI
-                        // NGAY KHI start (tr??c c?nh lên SCK ??u tiên).
-                        // Dòng "assign mosi = tx_buffer[7]" ?ã x? lý vi?c này.
-                    end
+            sck_counter <= 8'h00;
+            spi_sck <= 1'b0;
+            sck_tick <= 1'b0;
+            spi_mosi <= 1'b0;
+        end else begin
+            // C?p nh?t tr?ng thái
+            current_state <= next_state;
+            transfer_done <= 1'b0; // M?c ??nh là th?p
+    
+            // Logic Xung SCK và Tick
+            if (current_state == `TRANSMIT) begin
+                if (sck_counter == spi_clk_div - 1) begin
+                    sck_counter <= 8'h00;
+                    spi_sck <= ~spi_sck; 
+                    sck_tick <= 1'b1;
+                end else begin
+                    sck_counter <= sck_counter + 1;
+                    sck_tick <= 1'b0;
                 end
-
-                WORK: begin
-                    // B? ??m t?o xung SCK
-                    if (clk_cnt < (PRESCALER * 2) - 1)
-                        clk_cnt <= clk_cnt + 1;
-                    else
-                        clk_cnt <= 0;
-
-                    // --- C?nh lên SCK (Sample MISO) ---
-                    if (sample_edge) begin
-                        sck <= 1'b1;
-                        // Nh?n d? li?u t? nRF24L01 (d?ch vào t? bên ph?i - LSB)
-                        rx_buffer <= {rx_buffer[6:0], miso}; 
+            end else begin
+                // ??m b?o SCK ? m?c th?p khi IDLE/DONE
+                spi_sck <= 1'b0; 
+                sck_counter <= 8'h00;
+                sck_tick <= 1'b0;
+            end
+    
+            // Logic FSM
+            case (current_state)
+                `IDLE: begin
+                    if (start_transfer) begin
+                        shift_reg_tx <= data_in; // Download data_in
+                        bit_counter <= 4'h0;
+                    end
+                    spi_mosi <= 1'b0; // MOSI th?p khi IDLE
+                end
+    
+                `TRANSMIT: begin
+                    // T?o MOSI: G?i bit MSB tr??c
+                    spi_mosi <= shift_reg_tx[7];
+                    
+    
+                    // D?ch chuy?n trên c?nh LÊN c?a SCK (CPOL=0, CPHA=0)
+                    if (sck_tick & spi_sck) begin // Ki?m tra (sck_tick=1) và (spi_sck=1)
+                        shift_reg_tx <= shift_reg_tx << 1; 
+                        shift_reg_rx <= {shift_reg_rx[6:0], spi_miso}; 
+                        bit_counter <= bit_counter + 1;
                     end
                     
-                    // --- C?nh xu?ng SCK (Shift MOSI) ---
-                    else if (shift_edge) begin
-                        sck <= 1'b0;
-                        
-                        if (bit_cnt == 4'd7) begin
-                            // ?ã xong 8 bit
-                            state     <= IDLE;
-                            data_out  <= rx_buffer; // C?p nh?t d? li?u ??u ra
-                            done      <= 1'b1;      // Báo hi?u xong
-                        end else begin
-                            // Ch?a xong, d?ch bit ti?p theo ?? chu?n b? cho l?n sample t?i
-                            tx_buffer <= {tx_buffer[6:0], 1'b0}; 
-                            bit_cnt   <= bit_cnt + 1;
-                        end
-                    end
+                end
+    
+                `DONE: begin
+                    data_out <= shift_reg_rx;
+                    transfer_done <= 1'b1;
+                    spi_mosi <= 1'b0;
+                    $display("[SPI] Done. Data_out %h", data_out);
                 end
             endcase
         end
     end
-
 endmodule

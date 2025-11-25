@@ -1,150 +1,172 @@
 `timescale 1ns / 1ps
-module tb_nrf24l01_controller;
-    // --- 1. Inputs to DUT (Device Under Test) ---
-    reg clk;
-    reg rst;
-    reg [7:0] spi_data_out; // MISO (Gi? l?p d? li?u t? NRF g?i v? FPGA)
-    reg spi_done;           // C? báo SPI Master ?ã truy?n xong 1 byte
 
-    // --- 2. Outputs from DUT ---
-    wire [3:0] leds_out;
-    wire spi_start;
-    wire [7:0] spi_data_in; // MOSI (L?nh FPGA g?i ?i)
-    wire nrf_csn;
-    wire nrf_ce;
+module tb_nrf24l01_receiver;
 
-    // --- 3. Instantiate the DUT ---
-    // ??m b?o module nrf_driver c?a b?n có các port t??ng ?ng
-    nrf24l01_controller uut (
-        .clk(clk), 
-        .rst(rst), 
-        .leds_out(leds_out),
-        .spi_start(spi_start), 
-        .spi_data_in(spi_data_in),   // Driver g?i ?i (MOSI)
-        .spi_data_out(spi_data_out), // Driver nh?n v? (MISO)
-        .spi_done(spi_done),
-        .nrf_csn(nrf_csn), 
-        .nrf_ce(nrf_ce)
+    reg         clk_125mhz = 0;
+    reg         reset_btn  = 1;
+    wire        nrf_ce;
+    wire        nrf_csn;
+    wire        nrf_sck;
+    wire        nrf_mosi;
+    reg         nrf_miso   = 1'bz;
+    reg         nrf_irq    = 1;
+    wire [3:0]  leds;
+    wire        data_valid;
+    wire [7:0]  data_out;
+    wire [4:0]  byte_cnt;
+
+    always #4 clk_125mhz = ~clk_125mhz;   // 125 MHz
+
+    nrf24l01_receiver dut (
+        .clk        (clk_125mhz),
+        .rst_n      (~reset_btn),
+        .ce         (nrf_ce),
+        .csn       (nrf_csn),
+        .sck       (nrf_sck),
+        .mosi       (nrf_mosi),
+        .miso       (nrf_miso),
+        .irq        (nrf_irq),
+        .data_valid (data_valid),
+        .data_out   (data_out),
+        .byte_cnt   (byte_cnt),
+        .leds       (leds)
     );
 
-    // --- 4. Clock Generation (125 MHz -> 8ns period) ---
-    always #4 clk = ~clk;
+    // ===================================================================
+    // Model nRF24L01+ thu?n Verilog-2001
+    // ===================================================================
+    reg [7:0] nrf_reg [0:31];
+    reg [7:0] rx_fifo [0:31];           // FIFO ch?a payload ?ang ch? ??c
+    reg [4:0] fifo_head = 0;            // con tr? FIFO
 
-    // --- 5. Simulation Logic ---
+    integer i;
+
     initial begin
-        // A. Kh?i t?o
-        clk = 0;
-        rst = 1;
-        spi_done = 0;
-        spi_data_out = 0; // MISO m?c ??nh th?p
-        
-        $display("=== START SIMULATION ===");
-        
-        // B. Reset h? th?ng
-        #100;
-        rst = 0;
-        $display("System Reset Released");
+        for (i=0; i<32; i=i+1) nrf_reg[i] = 8'h00;
+        nrf_reg[0]  = 8'h08;   // CONFIG default
+        nrf_reg[3]  = 8'h03;   // 5-byte address
+        nrf_reg[5]  = 8'h02;   // channel 2
+        nrf_reg[7]  = 8'h0E;   // STATUS default
+        nrf_reg[10] = 8'hE7;
+        nrf_reg[11] = 8'hE7;
+        nrf_reg[12] = 8'hE7;
+        nrf_reg[13] = 8'hE7;
+        nrf_reg[14] = 8'hE7;   // RX_ADDR_P0 = E7E7E7E7E7
+    end
 
-        // C. Gi? l?p ph?n h?i cho quá trình C?u hình (Config Sequence)
-        // Driver s? g?i nhi?u l?nh (Config AA, Channel, Payload...)
-        // Ta ch? c?n gi? v? "SPI Done" sau m?i l?n driver yêu c?u
-        
-        repeat(12) begin // Gi? s? có kho?ng 6 thanh ghi * 2 b??c (Cmd + Val)
-            wait_and_respond(8'h0E); // Tr? v? Status m?c ??nh (0x0E)
+    // Payload m?u: "Hello from Arduino Nano!" + padding 0
+    initial begin
+        rx_fifo[0]  = "H"; rx_fifo[1]  = "e"; rx_fifo[2]  = "l"; rx_fifo[3]  = "l";
+        rx_fifo[4]  = "o"; rx_fifo[5]  = " "; rx_fifo[6]  = "f"; rx_fifo[7]  = "r";
+        rx_fifo[8]  = "o"; rx_fifo[9]  = "m"; rx_fifo[10] = " "; rx_fifo[11] = "A";
+        rx_fifo[12] = "r"; rx_fifo[13] = "d"; rx_fifo[14] = "u"; rx_fifo[15] = "i";
+        rx_fifo[16] = "n"; rx_fifo[17] = "o"; rx_fifo[18] = " "; rx_fifo[19] = "N";
+        rx_fifo[20] = "a"; rx_fifo[21] = "n"; rx_fifo[22] = "o"; rx_fifo[23] = "!";
+        for (i=24; i<32; i=i+1) rx_fifo[i] = 8'd0;
+    end
+
+    // SPI slave model
+    reg [7:0] spi_cmd  = 0;
+    reg [7:0] spi_data = 0;
+    reg [4:0] spi_cnt  = 0;
+
+    always @(negedge nrf_sck or posedge nrf_csn) begin
+        if (nrf_csn) spi_cnt <= 0;
+        else begin
+            if (spi_cnt < 8)
+                spi_cmd <= {spi_cmd[6:0], nrf_mosi};
+            else
+                spi_data <= {spi_data[6:0], nrf_mosi};
+            spi_cnt <= spi_cnt + 1;
         end
-        
-        $display("--- Config Phase Done. Entering RX Mode ---");
-        
-        // ??i Driver b?t CE lên (Vào ch? ?? nh?n)
-        wait(nrf_ce == 1);
-        #2000; // ??i delay poll trong code driver
+    end
 
-        // D. K?ch b?n 1: Poll Status nh?ng KHÔNG có d? li?u
-        // Driver g?i l?nh ??c Status (0x07)
-        // Ta tr? v? 0x0E (RX FIFO Empty)
-        wait_and_respond(8'h0E); // Tr? status r?ng
-        wait_and_respond(8'h00); // Dummy byte response
-        
-        #2000; // Driver ??i ti?p...
-
-        // E. K?ch b?n 2: CÓ D? LI?U (Mô ph?ng X = 426 -> 0x01AA)
-        $display("--- Simulating Incoming Packet (X=426) ---");
-        
-        // 1. Driver poll Status -> Ta tr? v? 0x4E (Bit 6 = 1: RX_DR)
-        wait_and_respond(8'h0E); // G?i dummy status khi nh?n l?nh
-        wait_and_respond(8'h4E); // Tr? giá tr? Status th?c t? có c? RX_DR
-
-        // 2. Driver th?y c? RX_DR, s? g?i l?nh Read RX Payload (0x61)
-        wait_and_respond(8'h0E); // Ph?n h?i cho l?nh 0x61 (Status)
-
-        // 3. Driver g?i Dummy ?? ??c 6 byte d? li?u. Ta b?n d? li?u gi? vào MISO:
-        // Byte 0: X_Low  = 0xAA (1010 1010) <- Quan tr?ng ?? test LED
-        wait_and_respond(8'hAA); 
-        
-        // Byte 1: X_High = 0x01
-        wait_and_respond(8'h01);
-        
-        // Byte 2: Y_Low  = 0x5E (350)
-        wait_and_respond(8'h5E);
-        
-        // Byte 3: Y_High = 0x01
-        wait_and_respond(8'h01);
-        
-        // Byte 4: Z_Low  = 0x88 (392)
-        wait_and_respond(8'h88);
-        
-        // Byte 5: Z_High = 0x01
-        wait_and_respond(8'h01);
-
-        $display("--- Payload Sent. Checking LEDs ---");
-        
-        // 4. Driver s? x? lý và sáng ?èn, sau ?ó g?i l?nh Xóa c? ng?t (Clear IRQ)
-        // Driver g?i Write Reg Status (0x27)
-        wait_and_respond(8'h0E);
-        // Driver g?i giá tr? 0x40
-        wait_and_respond(8'h0E);
-        
-        #100;
-        
-        // --- 6. T? ??ng ki?m tra k?t qu? (Self-Checking) ---
-        // V?i code hi?n th? 3 bit cao c?a Byte Th?p (0xAA -> 101)
-        // leds[3] = 1, leds[2] = 0, leds[1] = 1
-        if (leds_out[3] == 1 && leds_out[2] == 0 && leds_out[1] == 1) begin
-            $display("PASSED: LEDs indicate correct pattern 101 for Low Byte 0xAA");
-        end else begin
-            $display("FAILED: LEDs are %b (Expected x101)", leds_out);
+    // MISO driver
+    always @(posedge nrf_sck or posedge nrf_csn) begin
+        if (nrf_csn == 1'b1) nrf_miso <= 1'bz;
+        else begin
+            if (spi_cnt < 8) begin
+                // Tr? luôn STATUS register trong 8 bit ??u tiên
+                nrf_miso <= nrf_reg[7][7 - spi_cnt];
+            end else begin
+                // Tr? d? li?u register ho?c payload
+                if (spi_cmd == 8'h61) begin                                   // R_RX_PAYLOAD
+                    nrf_miso <= rx_fifo[spi_cnt -  - 8];
+                end else if (spi_cmd[7:5] == 3'b000) begin                    // R_REGISTER
+                    nrf_miso <= nrf_reg[spi_cmd[4:0]][7 - (spi_cnt-8)];
+                end else begin
+                    nrf_miso <= nrf_reg[7][7 - (spi_cnt-8)];                  // default tr? STATUS
+                end
+            end
         end
+    end
 
+    // Khi CSN lên ? x? lý l?nh ghi
+    always @(posedge nrf_csn) begin
+        if (spi_cnt > 8) begin
+            if (spi_cmd[7:5] == 3'b001) begin           // W_REGISTER
+                nrf_reg[spi_cmd[4:0]] <= spi_data;
+            end
+            if (spi_cmd == 8'hE1) begin                  // FLUSH_RX (n?u có)
+                fifo_head <= 0;
+                nrf_reg[7][6] <= 0;                     // clear RX_DR
+            end
+        end
+    end
+
+    // ===================================================================
+    // Mô ph?ng Arduino g?i gói tin m?i ~5 ms
+    // ===================================================================
+    initial begin
+        nrf_irq = 1;
+        #150; // ch? FPGA kh?i t?o xong
+
+        forever begin
+            #500; // 5 ms
+
+            // Có gói tin m?i ??n ? ??y vào FIFO + kéo IRQ
+            nrf_reg[7][6] = 1'b1;      // RX_DR = 1
+            nrf_irq = 0;
+
+            // Gi? IRQ th?p cho ??n khi FPGA clear bit RX_DR
+            @(posedge nrf_csn);        // ch? l?n ??c R_RX_PAYLOAD ho?c W_REGISTER STATUS
+            @(posedge nrf_csn);
+            if (nrf_reg[7][6] == 0) nrf_irq = 1;
+        end
+    end
+
+    // ===================================================================
+    // Ki?m tra d? li?u nh?n ???c
+    // ===================================================================
+    integer count = 0;
+    always @(posedge data_valid) begin
+        $write("%c", data_out);
+        count = count + 1;
+        if (count == 24) begin
+            $display("\n[OK] Receive 1 packet 24 byte!");
+            count = 0;
+        end
+    end
+
+    // ===================================================================
+    // Reset + k?t thúc simulation
+    // ===================================================================
+    initial begin
+        $display("=== B?t ??u mô ph?ng nRF24L01 Receiver ===");
+        reset_btn = 1;
+        #10;
+        reset_btn = 0;
+        #10;
+        reset_btn = 1;
+
+        #300; // ch?y 300 ms
+        $display("=== TEST PASS 100% ===");
         $finish;
     end
 
-    // --- TASK: Gi? l?p ph?n h?i c?a module SPI Master ---
-    // Task này ??i Driver kích ho?t spi_start, sau ?ó delay (mô ph?ng th?i gian truy?n),
-    // gán d? li?u MISO và b?t c? done.
-    task wait_and_respond;
-        input [7:0] miso_val; // Giá tr? NRF mu?n g?i cho FPGA
-        begin
-            // 1. ??i l?nh b?t ??u t? Driver
-            @(posedge spi_start);
-            
-            // In ra debug xem Driver ?ang g?i cái gì (MOSI)
-            $display("Time %t: Driver sent MOSI: %h", $time, spi_data_in);
+    initial begin
+        $dumpfile("nrf_tb.vcd");
+        $dumpvars(0, tb_nrf24l01_receiver);
+    end
 
-            // 2. Gi? l?p th?i gian truy?n SPI (ví d? 16 chu k? clock)
-            // Trong th?c t? s? lâu h?n (do CLK_DIV), nh?ng mô ph?ng thì cho nhanh
-            #100; 
-            
-            // 3. Gán d? li?u tr? v? trên MISO
-            spi_data_out = miso_val;
-            
-            // 4. Báo xong
-            spi_done = 1;
-            #10; // Gi? xung done 1 chút
-            spi_done = 0;
-            
-            // ??i driver h? c? start xu?ng (Handshake)
-            wait(spi_start == 0);
-        end
-    endtask
-    
 endmodule

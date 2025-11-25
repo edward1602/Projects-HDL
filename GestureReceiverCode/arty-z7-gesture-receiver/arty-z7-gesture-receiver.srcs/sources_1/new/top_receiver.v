@@ -1,70 +1,123 @@
 `timescale 1ns / 1ps
 
-module top(
-    input  wire        clk,            // Clock h? th?ng (50MHz/100MHz)
-    input  wire        rst_n,          // Reset (Nút nh?n trên board)
-
-    // --- CÁC CHÂN N?I RA NGOÀI (N?i v?i module nRF24L01 th?t) ---
-    input  wire        nrf_miso,       // MISO (Chân này c?n c?m ?úng)
-    input  wire        nrf_irq_n,      // IRQ (Chân báo ng?t)
-    output wire        nrf_mosi,       // MOSI
-    output wire        nrf_sck,        // SCK
-    output wire        nrf_csn,        // CSN (Chip Select)
-    output wire        nrf_ce,         // CE (Chip Enable)
-
-    // --- OUTPUT CHO NG??I DÙNG (Ví d? n?i ra LED ho?c UART ?? xem) ---
-    output wire [47:0] data_received,  // 6 byte d? li?u nh?n ???c
-    output wire        data_valid      // ?èn báo khi nh?n xong
+module arty_nrf_receiver_top (
+    // Clock và Reset H? th?ng
+    input clk_100mhz,
+    input rst_n,          
+    
+    // Giao di?n V?t lý nRF24L01
+    output nrf_ce_pin,    
+    output nrf_csn_pin,   
+    output nrf_sck_pin,   
+    output nrf_mosi_pin,  
+    input nrf_miso_pin,   
+    input nrf_irq_pin,    
+    
+    // ??U RA D? LI?U ?Ã X? LÝ (?? b?n truy c?p)
+    output [15:0] x_axis_data_out,
+    output [15:0] y_axis_data_out,
+    output [15:0] z_axis_data_out,
+    output led_rdy       // Báo hi?u gói tin ?ã s?n sàng
 );
 
-    // --- 1. KHAI BÁO CÁC DÂY N?I TRONG (INTERNAL WIRES) ---
-    // ?ây là các dây "?o" ?? n?i gi?a Controller và SPI Master
-    wire        w_spi_start;
-    wire        w_spi_done;
-    wire [7:0]  w_data_to_spi;   // Controller g?i ?i -> SPI Master
-    wire [7:0]  w_data_from_spi; // SPI Master nh?n v? -> Controller
-    wire        w_spi_busy;
+// ----------------------------------------------------
+// KHAI BÁO TÍN HI?U N?I B? (reg/wire)
+// ----------------------------------------------------
 
-    // --- 2. NHÚNG MODULE SPI MASTER (Instance) ---
-    // Tên module g?c  |  Tên ??t cho instance này
-    spi_master #(
-        .PRESCALER(50)  // Ch?nh t?c ?? SPI t?i ?ây
-    ) u_spi_driver (
-        // Bên trái: Tên chân trong module con  |  Bên ph?i: Tên dây n?i ? module Top
-        .clk        (clk),
-        .rst_n      (rst_n),
+    // Tín hi?u ?i?u khi?n nrf24l01_controller
+    reg cmd_start;
+    wire cmd_done;
+    wire [7:0] status_reg_out;
+
+    // Tín hi?u D? li?u thô t? nrf24l01_controller
+    wire [7:0] data_byte_from_nrf;
+    wire data_valid_flag;
+    wire [2:0] byte_counter;
+
+    // Tín hi?u D? li?u ?ã x? lý t? payload_assembler
+    wire [15:0] x_out, y_out, z_out;
+    wire packet_ready_flag;
+
+    // Gán tr?c ti?p chân v?t lý (wire)
+    wire nrf_ce_i, nrf_csn_i, nrf_sck_i, nrf_mosi_i;
+    assign nrf_ce_pin = nrf_ce_i;
+    assign nrf_csn_pin = nrf_csn_i;
+    assign nrf_sck_pin = nrf_sck_i;
+    assign nrf_mosi_pin = nrf_mosi_i;
+
+    // Gán ??u ra d? li?u và LED
+    assign x_axis_data_out = x_out;
+    assign y_axis_data_out = y_out;
+    assign z_axis_data_out = z_out;
+    assign led_rdy = packet_ready_flag;
+
+
+// ----------------------------------------------------
+// 1. Th? hi?n NRF24L01 CONTROLLER
+// ----------------------------------------------------
+    nrf24l01_controller nrf_ctrl_inst (
+        .clk(clk_100mhz),
+        .rst_n(rst_n),
         
-        // Giao ti?p v?i Controller
-        .start      (w_spi_start),      // N?i v?i dây start t? Controller
-        .data_in    (w_data_to_spi),    // N?i v?i dây data TX t? Controller
-        .data_out   (w_data_from_spi),  // N?i v?i dây data RX v? Controller
-        .done       (w_spi_done),       // N?i v?i dây done v? Controller
-        .busy       (w_spi_busy),
+        // Command Interface
+        .cmd_start(cmd_start),
+        .cmd_done(cmd_done),
         
-        // Giao ti?p ra chân v?t lý (Port c?a module Top)
-        .miso       (nrf_miso),
-        .mosi       (nrf_mosi),
-        .sck        (nrf_sck)
+        // Physical nRF24L01 Pins (K?t n?i v?i wire trung gian)
+        .nrf_ce(nrf_ce_i),
+        .nrf_csn(nrf_csn_i),
+        .nrf_irq(nrf_irq_pin),
+        .status_reg_out(status_reg_out),
+        
+        // SPI Interface (K?t n?i v?i wire trung gian)
+        .spi_sck(nrf_sck_i),
+        .spi_mosi(nrf_mosi_i),
+        .spi_miso(nrf_miso_pin),
+        
+        // Raw Data Output
+        .rx_byte_out(data_byte_from_nrf), 
+        .rx_byte_count(byte_counter), 
+        .rx_data_valid(data_valid_flag) 
     );
 
-    // --- 3. NHÚNG MODULE CONTROLLER (Instance) ---
-    nrf24l01_controller u_nrf_logic (
-        .clk           (clk),
-        .rst_n         (rst_n),
-
-        // Giao ti?p v?i SPI Master (Qua các dây internal wires)
-        .spi_start     (w_spi_start),     // Output ra dây w_spi_start
-        .spi_data_tx   (w_data_to_spi),   // Output ra dây w_data_to_spi
-        .spi_data_rx   (w_data_from_spi), // Input t? dây w_data_from_spi
-        .spi_done      (w_spi_done),      // Input t? dây w_spi_done
-
-        // Giao ti?p ra chân v?t lý
-        .nrf_irq_n     (nrf_irq_n),
-        .nrf_csn       (nrf_csn),
-        .nrf_ce        (nrf_ce),
-
-        // Output k?t qu?
-        .payload_out   (data_received),
-        .payload_valid (data_valid)
+// ----------------------------------------------------
+// 2. Th? hi?n PAYLOAD ASSEMBLER
+// ----------------------------------------------------
+    payload_assembler assembler_inst (
+        .clk(clk_100mhz),
+        .rst_n(rst_n),
+        
+        // Input from nrf24l01_controller
+        .rx_byte_in(data_byte_from_nrf), 
+        .rx_byte_count_in(byte_counter),
+        .rx_data_valid_in(data_valid_flag),
+        
+        // Assembled Data Output
+        .x_axis_out(x_out),
+        .y_axis_out(y_out),
+        .z_axis_out(z_out),
+        .packet_ready(packet_ready_flag)
     );
+
+// ----------------------------------------------------
+// 3. LOGIC ?I?U KHI?N KH?I T?O (CH? C?N 1 XUNG)
+// ----------------------------------------------------
+    reg init_sent_reg;
+
+    always @(posedge clk_100mhz or negedge rst_n) begin
+        if (!rst_n) begin
+            cmd_start <= 1'b0;
+            init_sent_reg <= 1'b0;
+        end else begin
+            // Kích ho?t Kh?i t?o ? chu k? ??u tiên sau khi thoát Reset
+            if (!init_sent_reg) begin
+                cmd_start <= 1'b1;
+                init_sent_reg <= 1'b1;
+            end else begin
+                // Gi? cmd_start th?p sau khi nó ?ã ???c kích ho?t
+                cmd_start <= 1'b0;
+            end
+        end
+    end
+    
 endmodule

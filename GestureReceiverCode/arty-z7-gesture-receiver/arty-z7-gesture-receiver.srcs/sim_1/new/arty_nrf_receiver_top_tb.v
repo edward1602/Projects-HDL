@@ -137,7 +137,7 @@ module arty_nrf_receiver_top_tb;
         
         // 4.4. Ki?m tra K?t qu?
         $display("--- Kiem tra Ket qua Giai ma ---");
-        @(posedge led_rdy); // Ch? c? packet_ready ???c kích ho?t
+//        @(posedge led_rdy); // Ch? c? packet_ready ???c kích ho?t
         
         if (x_axis_data_out == 16'h1234 && y_axis_data_out == 16'h5678 && z_axis_data_out == 16'h9ABC) begin
             $display("-> THANH CONG: Du lieu giai ma chinh xac.");

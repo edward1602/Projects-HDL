@@ -1,0 +1,10 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"../../../../arty-z7-gesture-receiver.srcs/sources_1/new/payload_assembler.v" \
+"../../../../arty-z7-gesture-receiver.srcs/sim_1/new/tb_payload_assembler.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

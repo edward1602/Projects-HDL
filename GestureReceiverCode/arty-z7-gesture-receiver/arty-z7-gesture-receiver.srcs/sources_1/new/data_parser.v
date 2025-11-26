@@ -22,9 +22,11 @@ module data_parser (
             accel_z <= 0;
             valid <= 0;
         end else if (data_ready) begin
-            accel_x <= {payload_1, payload_0};
-            accel_y <= {payload_3, payload_2};
-            accel_z <= {payload_5, payload_4};
+            // Arduino sends int (16-bit) as little-endian: low byte first, high byte second
+            // Match Arduino struct data: xAxis, yAxis, zAxis (each 2 bytes)
+            accel_x <= {payload_0, payload_1}; // X: payload_0 (low) + payload_1 (high)
+            accel_y <= {payload_2, payload_3}; // Y: payload_2 (low) + payload_3 (high)  
+            accel_z <= {payload_4, payload_5}; // Z: payload_4 (low) + payload_5 (high)
             valid <= 1;
         end else begin
             valid <= 0;

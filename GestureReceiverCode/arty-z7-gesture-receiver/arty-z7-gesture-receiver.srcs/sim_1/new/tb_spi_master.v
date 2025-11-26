@@ -1,14 +1,14 @@
 `timescale 1ns / 1ps
 
-module spi_master_tb;
+module tb_spi_master;
 
     // ----------------------------------------------------
-    // 1. Khai báo tín hi?u Testbench
+    // 1. Testbench Signal Declarations
     // ----------------------------------------------------
     reg clk;
     reg rst_n;
     
-    reg [7:0] spi_clk_div = 8'd8; 
+    reg [7:0] spi_clk_div; 
     
     reg start_transfer;
     reg [7:0] data_in;
@@ -19,14 +19,19 @@ module spi_master_tb;
     wire spi_sck;
     wire spi_mosi;
     
-    parameter TEST_DATA_TX = 8'b10101111; // d? li?u master g?i
-    parameter TEST_DATA_RX = 8'b01010000; // d? li?u slave tr? v?
+    // Test parameters
+    parameter CLK_PERIOD = 10; // 100MHz clock
+    parameter TEST_DATA_TX = 8'hA5; // Test data to transmit (10100101)
+    parameter TEST_DATA_RX = 8'h5A; // Test data to receive (01011010)
     
-    reg [7:0] expected_data_out;
-    integer i;
+    // Internal variables
+    reg [7:0] expected_rx_data;
+    reg [7:0] miso_shift_reg;
+    integer bit_count;
+    integer test_count;
 
     // ----------------------------------------------------
-    // 2. Kh?i t?o DUT
+    // 2. DUT Instantiation
     // ----------------------------------------------------
     spi_master DUT (
         .clk(clk),
@@ -44,9 +49,10 @@ module spi_master_tb;
     );
 
     // ----------------------------------------------------
-    // 3. T?o Clock 100 MHz
+    // 3. Clock Generation (100 MHz)
     // ----------------------------------------------------
-    always #5 clk = ~clk; 
+    initial clk = 0;
+    always #(CLK_PERIOD/2) clk = ~clk; 
 
     // ----------------------------------------------------
     // 4. K?ch b?n Test
@@ -74,13 +80,13 @@ module spi_master_tb;
         
         $display("Transfer TX=%b", data_in);
 
-        // Mô ph?ng 8 bit truy?n/nh?n
+        // Mï¿½ ph?ng 8 bit truy?n/nh?n
         for (i = 0; i < 8; i = i + 1) begin
             @(posedge spi_sck) begin
                 // Slave ??a d? li?u ra MISO
                 spi_miso <= expected_data_out[7 - i];
 
-                // Ki?m tra MOSI có ?úng không
+                // Ki?m tra MOSI cï¿½ ?ï¿½ng khï¿½ng
                 if (spi_mosi !== TEST_DATA_TX[7 - i]) begin
                     $display("-> LOI MOSI: Bit %0d, MOSI=%b, mong ??i=%b", 
                               i, spi_mosi, TEST_DATA_TX[7 - i]);
@@ -88,15 +94,15 @@ module spi_master_tb;
                     $display("-> DUNG MOSI: Bit %0d, MOSI=%b", i, spi_mosi);
                 end
 
-                // In thông tin RX
+                // In thï¿½ng tin RX
                 $display("@%0t: Bit %0d TX=%b, RX(MISO)=%b", 
                           $time, i, spi_mosi, spi_miso);
             end
         end
         
-        // Ch? k?t thúc truy?n
+        // Ch? k?t thï¿½c truy?n
         @(posedge transfer_done);
-        $display("--- K?t thúc truy?n. Th?i gian: %0t ---", $time);
+        $display("--- K?t thï¿½c truy?n. Th?i gian: %0t ---", $time);
 
         // Ki?m tra d? li?u nh?n
         if (data_out == expected_data_out) begin
@@ -104,18 +110,72 @@ module spi_master_tb;
                       data_out, expected_data_out);
         end else begin
             $display("-> THAT BAI RX: data_out=%b, mong ??i=%b", 
-                      data_out, expected_data_out);
+                      data_out, exp ected_data_out);
         end
         
         #100 $finish; 
     end
     
     // ----------------------------------------------------
-    // 5. Ghi sóng (Tùy ch?n)
+    // 5. Task: Test SPI Transfer
+    // ----------------------------------------------------
+    task test_spi_transfer;
+        input [7:0] tx_data;
+        input [7:0] rx_data;
+        begin
+            test_count = test_count + 1;
+            $display("\n--- Test %0d: TX=0x%h, Expected RX=0x%h ---", test_count, tx_data, rx_data);
+            
+            // Setup test data
+            data_in = tx_data;
+            expected_rx_data = rx_data;
+            miso_shift_reg = rx_data;
+            bit_count = 0;
+            
+            // Start transfer
+            @(posedge clk);
+            start_transfer = 1;
+            @(posedge clk);
+            start_transfer = 0;
+            
+            $display("[%0t] Transfer started", $time);
+            
+            // Wait for transfer completion
+            @(posedge transfer_done);
+            
+            // Verify results
+            if (data_out == expected_rx_data) begin
+                $display("[%0t] âœ“ PASS: RX data correct (0x%h)", $time, data_out);
+            end else begin
+                $display("[%0t] âœ— FAIL: RX data incorrect (got 0x%h, expected 0x%h)", 
+                         $time, data_out, expected_rx_data);
+            end
+            
+            repeat(5) @(posedge clk); // Wait between tests
+        end
+    endtask
+    
+    // ----------------------------------------------------
+    // 6. MISO Simulation (Slave Response)
+    // ----------------------------------------------------
+    always @(posedge spi_sck or negedge rst_n) begin
+        if (!rst_n) begin
+            bit_count <= 0;
+        end else begin
+            // Send MSB first on MISO
+            spi_miso <= miso_shift_reg[7-bit_count];
+            $display("[%0t] SCK rising: Bit %0d, MOSI=%b, MISO=%b", 
+                     $time, bit_count, spi_mosi, miso_shift_reg[7-bit_count]);
+            bit_count <= bit_count + 1;
+        end
+    end
+    
+    // ----------------------------------------------------
+    // 7. Waveform Dump
     // ----------------------------------------------------
     initial begin
-        $dumpfile("spi_master.vcd");
-        $dumpvars(0, spi_master_tb);
+        $dumpfile("tb_spi_master.vcd");
+        $dumpvars(0, tb_spi_master);
     end
 
 endmodule

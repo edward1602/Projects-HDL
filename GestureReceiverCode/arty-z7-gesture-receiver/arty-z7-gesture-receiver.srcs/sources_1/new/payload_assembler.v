@@ -8,7 +8,7 @@ module payload_assembler (
 
     // Interface from nrf24l01_controller module
     input [47:0] rx_payload_in,    // Input 6-byte payload (48 bits) all at once
-    input rx_data_valid_in,        // Flag indicating a new valid payload is present
+    input data_valid,        // Flag indicating a new valid payload is present
 
     // Assembled output data (16 bits for each axis, matching Arduino 'int')
     output reg [15:0] x_axis_out,
@@ -32,7 +32,7 @@ always @(posedge clk or negedge rst_n) begin
         packet_ready <= 1'b0; // Default: pulse ready for only one clock cycle
 
         // --- Process Incoming 6-byte Payload ---
-        if (rx_data_valid_in) begin
+        if (data_valid) begin
             // Extract and assemble the 16-bit values from 48-bit payload (Little-Endian format):
             // Payload bit mapping: [47:40][39:32][31:24][23:16][15:8][7:0]
             //                      Byte5   Byte4  Byte3  Byte2  Byte1 Byte0
@@ -49,9 +49,12 @@ always @(posedge clk or negedge rst_n) begin
             packet_ready <= 1'b1; // Signal that assembled data is ready
 
             $display("[Assembler] Payload received: 0x%h", rx_payload_in);
-            $display("[Assembler] X=0x%h Y=0x%h Z=0x%h", 
-                     {rx_payload_in[15:8], rx_payload_in[7:0]}, 
+            $display("[Assembler] Output: X=0x%h(%d) Y=0x%h(%d) Z=0x%h(%d)", 
+                     {rx_payload_in[15:8], rx_payload_in[7:0]},
+                     {rx_payload_in[15:8], rx_payload_in[7:0]},
                      {rx_payload_in[31:24], rx_payload_in[23:16]}, 
+                     {rx_payload_in[31:24], rx_payload_in[23:16]}, 
+                     {rx_payload_in[47:40], rx_payload_in[39:32]},
                      {rx_payload_in[47:40], rx_payload_in[39:32]});
         end
     end

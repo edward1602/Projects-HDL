@@ -1,0 +1,74 @@
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
+| Date         : Wed Nov 26 17:16:05 2025
+| Host         : myDELL running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file arty_z7_nrf_test_top_control_sets_placed.rpt
+| Design       : arty_z7_nrf_test_top
+| Device       : xc7z020
+-------------------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Number of unique control sets                            |     8 |
+| Unused register locations in slices containing registers |    22 |
++----------------------------------------------------------+-------+
+
+
+2. Histogram
+------------
+
++--------+--------------+
+| Fanout | Control Sets |
++--------+--------------+
+|      2 |            2 |
+|      4 |            1 |
+|    16+ |            5 |
++--------+--------------+
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |               2 |            1 |
+| No           | No                    | Yes                    |             126 |           23 |
+| No           | Yes                   | No                     |               0 |            0 |
+| Yes          | No                    | No                     |               0 |            0 |
+| Yes          | No                    | Yes                    |             106 |           15 |
+| Yes          | Yes                   | No                     |              40 |            5 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++----------------+-------------------------------------------------------+------------------------------------------------------------------+------------------+----------------+
+|  Clock Signal  |                     Enable Signal                     |                         Set/Reset Signal                         | Slice Load Count | Bel Load Count |
++----------------+-------------------------------------------------------+------------------------------------------------------------------+------------------+----------------+
+|  clk_IBUF_BUFG |                                                       |                                                                  |                1 |              2 |
+|  clk_IBUF_BUFG | nrf_controller/spi_master_inst/spi_mosi_i_1_n_0       | nrf_controller/spi_master_inst/FSM_onehot_current_state_reg[0]_0 |                1 |              2 |
+|  clk_IBUF_BUFG | nrf_controller/payload_ready                          | nrf_controller/spi_master_inst/FSM_onehot_current_state_reg[0]_0 |                1 |              4 |
+|  clk_IBUF_BUFG | nrf_controller/spi_master_inst/bit_counter[3]_i_1_n_0 | nrf_controller/spi_master_inst/FSM_onehot_current_state_reg[0]_0 |                4 |             24 |
+|  clk_IBUF_BUFG | nrf_controller/spi_master_inst/E[0]                   | nrf_controller/spi_master_inst/FSM_onehot_current_state_reg[0]_0 |                3 |             28 |
+|  clk_IBUF_BUFG | sel                                                   | reset_btn_IBUF                                                   |                5 |             40 |
+|  clk_IBUF_BUFG | nrf_controller/power_up_counter0                      | nrf_controller/spi_master_inst/FSM_onehot_current_state_reg[0]_0 |                6 |             48 |
+|  clk_IBUF_BUFG |                                                       | nrf_controller/spi_master_inst/FSM_onehot_current_state_reg[0]_0 |               23 |            126 |
++----------------+-------------------------------------------------------+------------------------------------------------------------------+------------------+----------------+
+
+

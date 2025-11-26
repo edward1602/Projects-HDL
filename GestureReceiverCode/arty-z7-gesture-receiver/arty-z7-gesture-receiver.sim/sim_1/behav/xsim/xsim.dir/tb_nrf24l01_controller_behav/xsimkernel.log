@@ -1,7 +1,0 @@
-Running: xsim.dir/tb_nrf24l01_controller_behav/xsimk.exe -simmode gui -wdb tb_nrf24l01_controller_behav.wdb -simrunnum 0 -socket 53055
-Design successfully loaded
-Design Loading Memory Usage: 7652 KB (Peak: 7652 KB)
-Design Loading CPU Usage: 15 ms
-Simulation completed
-Simulation Memory Usage: 16388 KB (Peak: 16388 KB)
-Simulation CPU Usage: 561 ms

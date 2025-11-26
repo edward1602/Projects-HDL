@@ -1,0 +1,123 @@
+Vivado Simulator 2018.2
+Time resolution is 1 ps
+=== NRF24L01 Simple RX Controller Test ===
+[0] SPI transaction ended
+[NRF] idle -> init_start
+[0] State: 0
+[NRF] idle -> init_start
+[0] NRF_CE deasserted
+[150000] Reset completed
+[NRF] idle -> init_start
+[NRF] inti_start -> write_config
+[155000] State: 1
+[160000] RX start issued
+[160000] Waiting for RX ready...
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] inti_start -> write_config
+[NRF] write_config -> write_en_rxaddr
+[265000] State: 2
+[265000] SPI transaction started
+[SPI] Done. Data_out 00
+[NRF] write_config -> write_en_rxaddr
+[NRF] write_config -> write_en_rxaddr
+[NRF] write_config -> write_en_rxaddr
+[SPI] Done. Data_out 55
+[NRF] write_config -> write_en_rxaddr
+[NRF] write_en_rxaddr -> write_setup_aw
+[15355000] State: 3
+[NRF] write_en_rxaddr -> write_setup_aw
+[SPI] Done. Data_out 55
+[NRF] write_en_rxaddr -> write_setup_aw
+[NRF] write_en_rxaddr -> write_setup_aw
+[NRF] write_en_rxaddr -> write_setup_aw
+[SPI] Done. Data_out 55
+[NRF] write_en_rxaddr -> write_setup_aw
+[NRF] write_setup_aw -> write_rf_ch
+[30435000] State: 4
+[NRF] write_setup_aw -> write_rf_ch
+[SPI] Done. Data_out 55
+[NRF] write_setup_aw -> write_rf_ch
+[NRF] write_setup_aw -> write_rf_ch
+[NRF] write_setup_aw -> write_rf_ch
+[SPI] Done. Data_out 55
+[NRF] write_setup_aw -> write_rf_ch
+[NRF] write_rf_ch -> write_rf_setup
+[45515000] State: 5
+[NRF] write_rf_ch -> write_rf_setup
+[SPI] Done. Data_out 55
+[NRF] write_rf_ch -> write_rf_setup
+[NRF] write_rf_ch -> write_rf_setup
+[NRF] write_rf_ch -> write_rf_setup
+[SPI] Done. Data_out 55
+[NRF] write_rf_ch -> write_rf_setup
+[NRF] write_rf_setup -> write_rx_pw
+[60595000] State: 6
+[NRF] write_rf_setup -> write_rx_pw
+[SPI] Done. Data_out 55
+[NRF] write_rf_setup -> write_rx_pw
+[NRF] write_rf_setup -> write_rx_pw
+[NRF] write_rf_setup -> write_rx_pw
+[SPI] Done. Data_out 55
+[NRF] write_rf_setup -> write_rx_pw
+[NRF] write_rx_pw -> write_rx_addr_cmd
+[75675000] State: 7
+[NRF] write_rx_pw -> write_rx_addr_cmd
+[SPI] Done. Data_out 55
+[NRF] write_rx_pw -> write_rx_addr_cmd
+[NRF] write_rx_pw -> write_rx_addr_cmd
+[NRF] write_rx_pw -> write_rx_addr_cmd
+[SPI] Done. Data_out 55
+[NRF] write_rx_pw -> write_rx_addr_cmd
+[NRF] write_rx_addr_cmd -> write_rx_addr_byte
+[90755000] State: 8
+[NRF] write_rx_addr_cmd -> write_rx_addr_byte
+[SPI] Done. Data_out 55
+[NRF] write_rx_addr_cmd -> write_rx_addr_byte
+[NRF] write_rx_addr_byte -> rx_ready
+[98295000] State: 9
+[NRF] write_rx_addr_byte -> rx_ready
+[SPI] Done. Data_out 55
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] Address byte 0 sent: 0xe7
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] write_rx_addr_byte -> rx_ready
+[SPI] Done. Data_out 55
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] Address byte 1 sent: 0xe7
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] write_rx_addr_byte -> rx_ready
+[SPI] Done. Data_out 55
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] Address byte 2 sent: 0xe7
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] write_rx_addr_byte -> rx_ready
+[SPI] Done. Data_out 55
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] Address byte 3 sent: 0xe7
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] write_rx_addr_byte -> rx_ready
+[SPI] Done. Data_out 55
+[NRF] write_rx_addr_byte -> rx_ready
+[NRF] All address bytes sent, initialization complete!
+[NRF] rx_ready -> rx_read_payload_cmd (IRQ detected)
+[135995000] State: 10
+[NRF] rx_ready -> rx_read_payload_cmd (IRQ detected)
+[135995000] SPI transaction ended
+[NRF] RX MODE READY - Listening for packets...
+[136005000] ? RX Ready detected!
+[136005000] ? NRF_CE asserted - RX mode active
+[SPI] Done. Data_out 55
+[NRF] rx_ready -> rx_read_payload_cmd (IRQ detected)
+[NRF] rx_ready -> rx_read_payload_cmd (IRQ detected)
+[146005000] Simulating gesture data reception...
+[NRF] rx_ready -> rx_read_payload_cmd (IRQ detected)
+[NRF] rx_read_payload_cmd -> rx_read_pay

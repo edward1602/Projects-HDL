@@ -1,13 +1,16 @@
 Vivado Simulator 2018.2
 Copyright 1986-1999, 2001-2018 Xilinx, Inc. All Rights Reserved.
-Running: D:/Vivado/2018.2/bin/unwrapped/win64.o/xelab.exe -wto 46c4b0ab245e40d58c9c72527d28a27b --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot tb_payload_assembler_behav xil_defaultlib.tb_payload_assembler xil_defaultlib.glbl -log elaborate.log 
+Running: D:/Vivado/2018.2/bin/unwrapped/win64.o/xelab.exe -wto 46c4b0ab245e40d58c9c72527d28a27b --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot tb_nrf24l01_simple_rx_controller_behav xil_defaultlib.tb_nrf24l01_simple_rx_controller xil_defaultlib.glbl -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
 Completed static elaboration
 Starting simulation data flow analysis
+WARNING: [XSIM 43-4099] "E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_controller.v" Line 1. Module nrf24l01_simple_rx_controller doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/spi_master.v" Line 1. Module spi_master doesn't have a timescale but at least one module in design has a timescale.
 Completed simulation data flow analysis
 Time Resolution for simulation is 1ps
-Compiling module xil_defaultlib.payload_assembler
-Compiling module xil_defaultlib.tb_payload_assembler
+Compiling module xil_defaultlib.spi_master
+Compiling module xil_defaultlib.nrf24l01_simple_rx_controller
+Compiling module xil_defaultlib.tb_nrf24l01_simple_rx_controller
 Compiling module xil_defaultlib.glbl
-Built simulation snapshot tb_payload_assembler_behav
+Built simulation snapshot tb_nrf24l01_simple_rx_controller_behav

@@ -23,7 +23,7 @@ eval( EAInclude(ISEJScriptLib) );
 
 
 ISEStep( "vivado",
-         "-log nrf_receiver_system_top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source nrf_receiver_system_top.tcl" );
+         "-log arty_z7_nrf_test_top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source arty_z7_nrf_test_top.tcl" );
 
 
 

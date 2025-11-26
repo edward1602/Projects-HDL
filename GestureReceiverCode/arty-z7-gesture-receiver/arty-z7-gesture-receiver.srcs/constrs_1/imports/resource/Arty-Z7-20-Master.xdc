@@ -4,24 +4,24 @@
 ## - rename the used ports (in each line, after get_ports) according to the top level signal names in the project
 ## =========================================================
 ## TIMING IGNORE (FALSE PATHS)
-## Thêm ?o?n này ?? s?a l?i Timing 38-282
+## Add this section to fix Timing 38-282 error
 ## =========================================================
 
-# Báo cho Vivado không ki?m tra timing c?a các chân Input (Reset, MISO, IRQ)
-# Vì ?ây là tín hi?u không ??ng b? ho?c ??n t? thi?t b? ch?m
+# Tell Vivado not to check timing of Input pins (Reset, MISO, IRQ)
+# Because these are asynchronous signals or come from slow devices
 set_false_path -from [get_ports { reset_btn }]
 set_false_path -from [get_ports { nrf_miso }]
 set_false_path -from [get_ports { nrf_irq }]
 
-# Báo cho Vivado không ki?m tra timing c?a các chân Output (LED, SPI, Control)
-# Vì m?t ng??i (LED) và module NRF (SPI < 10MHz) ch?m h?n nhi?u so v?i FPGA (125MHz)
+# Tell Vivado not to check timing of Output pins (LED, SPI, Control)
+# Because human eyes (LED) and NRF module (SPI < 10MHz) are much slower than FPGA (125MHz)
 set_false_path -to [get_ports { leds[*] }]
 set_false_path -to [get_ports { nrf_ce }]
 set_false_path -to [get_ports { nrf_csn }]
 set_false_path -to [get_ports { nrf_sck }]
 set_false_path -to [get_ports { nrf_mosi }]
 
-# N?u sau này b?n dùng thêm chân Motor, hãy uncomment dòng d??i:
+# If you use Motor pins later, uncomment the lines below:
 # set_false_path -to [get_ports { pwm_motor_* }]
 # set_false_path -to [get_ports { motor_dir[*] }]
 
@@ -53,7 +53,7 @@ set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports { reset
 #set_property -dict { PACKAGE_PIN L20    IOSTANDARD LVCMOS33 } [get_ports { btn[2] }]; #IO_L9N_T1_DQS_AD3N_35 Sch=BTN2
 #set_property -dict { PACKAGE_PIN L19    IOSTANDARD LVCMOS33 } [get_ports { btn[3] }]; #IO_L9P_T1_DQS_AD3P_35 Sch=BTN3
 
-## Pmod Header JA (?Ã T?T ?? CHUY?N SANG ARDUINO HEADER)
+## Pmod Header JA (DISABLED - MOVED TO ARDUINO HEADER)
 #set_property -dict { PACKAGE_PIN Y18    IOSTANDARD LVCMOS33 } [get_ports { pwm_motor_a }]; #IO_L17P_T2_34 Sch=JA1_P (Pin 1)
 #set_property -dict { PACKAGE_PIN Y19    IOSTANDARD LVCMOS33 } [get_ports { pwm_motor_b }]; #IO_L17N_T2_34 Sch=JA1_N (Pin 2)
 #set_property -dict { PACKAGE_PIN Y16    IOSTANDARD LVCMOS33 } [get_ports { motor_dir[0] }]; #IO_L7P_T1_34 Sch=JA2_P (Pin 3)
@@ -63,7 +63,7 @@ set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports { reset
 #set_property -dict { PACKAGE_PIN W18    IOSTANDARD LVCMOS33 } [get_ports { ja_p[4] }]; #IO_L22P_T3_34 Sch=JA4_P (Pin 9)
 #set_property -dict { PACKAGE_PIN W19    IOSTANDARD LVCMOS33 } [get_ports { ja_n[4] }]; #IO_L22N_T3_34 Sch=JA4_N (Pin 10)
 
-## Pmod Header JB (?Ã T?T ?? CHUY?N SANG ARDUINO HEADER)
+## Pmod Header JB (DISABLED - MOVED TO ARDUINO HEADER)
 #set_property -dict { PACKAGE_PIN W14    IOSTANDARD LVCMOS33 } [get_ports { nrf_ce }]; #IO_L8P_T1_34 Sch=JB1_P (Pin 1)
 #set_property -dict { PACKAGE_PIN Y14    IOSTANDARD LVCMOS33 } [get_ports { nrf_csn }]; #IO_L8N_T1_34 Sch=JB1_N (Pin 2)
 #set_property -dict { PACKAGE_PIN T11    IOSTANDARD LVCMOS33 } [get_ports { nrf_sck }]; #IO_L1P_T0_34 Sch=JB2_P (Pin 3)
@@ -91,11 +91,11 @@ set_property -dict { PACKAGE_PIN V13    IOSTANDARD LVCMOS33 } [get_ports { pwm_m
 set_property -dict { PACKAGE_PIN V15    IOSTANDARD LVCMOS33 } [get_ports { motor_dir[2] }]; #IO_L10P_T1_34            Sch=CK_IO4
 set_property -dict { PACKAGE_PIN T15    IOSTANDARD LVCMOS33 } [get_ports { motor_dir[3] }]; #IO_L5N_T0_34             Sch=CK_IO5
 
-## IO6, IO7 (Ch?a dùng)
+## IO6, IO7 (Not used yet)
 #set_property -dict { PACKAGE_PIN R16    IOSTANDARD LVCMOS33 } [get_ports { ck_io6  }]; #IO_L19P_T3_34            Sch=CK_IO6
 #set_property -dict { PACKAGE_PIN U17    IOSTANDARD LVCMOS33 } [get_ports { ck_io7  }]; #IO_L9N_T1_DQS_34         Sch=CK_IO7
 
-## NRF24L01 CONTROL (IO8 -> IO13) Trang - Cam - Tim - Duong - Vang - La
+## NRF24L01 CONTROL (IO8 -> IO13) White - Orange - Purple - Blue - Yellow - Green
 set_property -dict { PACKAGE_PIN V17    IOSTANDARD LVCMOS33 } [get_ports { nrf_irq }]; #IO_L21P_T3_DQS_34        Sch=CK_IO8
 set_property -dict { PACKAGE_PIN V18    IOSTANDARD LVCMOS33 } [get_ports { nrf_ce  }]; #IO_L21N_T3_DQS_34        Sch=CK_IO9
 set_property -dict { PACKAGE_PIN T16    IOSTANDARD LVCMOS33 } [get_ports { nrf_csn }]; #IO_L9P_T1_DQS_34         Sch=CK_IO10

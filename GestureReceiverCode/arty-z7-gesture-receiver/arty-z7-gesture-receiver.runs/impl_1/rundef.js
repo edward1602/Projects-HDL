@@ -25,7 +25,7 @@ eval( EAInclude(ISEJScriptLib) );
 // pre-commands:
 ISETouchFile( "init_design", "begin" );
 ISEStep( "vivado",
-         "-log nrf_receiver_system_top.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source nrf_receiver_system_top.tcl -notrace" );
+         "-log arty_z7_nrf_test_top.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source arty_z7_nrf_test_top.tcl -notrace" );
 
 
 

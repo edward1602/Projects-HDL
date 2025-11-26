@@ -32,13 +32,21 @@ module nrf24l01_controller (
     wire [7:0] spi_data_out;
     
     reg [3:0] init_step_counter;
+    reg [23:0] power_up_delay_counter; // 100ms delay counter at 100MHz
     
     reg [4:0] current_state, next_state; 
     reg [2:0] address_byte_counter; // Used for 5-byte addr
     reg [2:0] payload_byte_counter; // Counter for 6 bytes (from 5 down to 0)
     reg start_cmd_flag; // Flag to transition state after command completes
+    reg spi_cmd_phase; // 0: command phase, 1: data phase
     
     reg [7:0] current_addr_byte;
+    
+    // Timing constants based on nRF24L01 datasheet
+    parameter POWER_UP_DELAY = 24'd10_000_000; // 100ms at 100MHz (Section 6.1.1)
+    parameter CSN_DELAY = 8'd100;               // 1μs CSN pulse width
+    parameter CE_DELAY = 16'd1300;              // 13μs CE setup time
+    parameter STANDBY_DELAY = 16'd15000;        // 150μs mode transition
     
     spi_master spi_inst (
         .clk(clk),
@@ -74,39 +82,42 @@ module nrf24l01_controller (
             end
             
             // ------------------------------------
-            // STATE_INIT_START: Begin the NRF24L01 config sequence
+            // STATE_INIT_START: Begin the NRF24L01 config sequence with power-up delay
             // ------------------------------------
             `STATE_INIT_START: begin
-                // Pull CSN low and move to first register write step
-                nrf_csn = 1'b0; 
-                next_state = `STATE_WRITE_CONFIG;
+                nrf_csn = 1'b1; // Keep CSN high during power-up delay
+                nrf_ce = 1'b0;  // Keep CE low
+                
+                if (power_up_delay_counter >= POWER_UP_DELAY) begin
+                    next_state = `STATE_WRITE_CONFIG;
+                end else begin
+                    next_state = `STATE_INIT_START; // Stay in this state
+                end
             end
             
             // ------------------------------------
             // STATE_WRITE_CONFIG: Write the CONFIG reg
-            // Byte 1: Command
-            // Byte 2: Value
+            // Phase 0: Send command, Phase 1: Send data
             // ------------------------------------
             `STATE_WRITE_CONFIG: begin
                 nrf_csn = 1'b0;
-                // Byte 1: Write CONFIG register command
-                if (!start_cmd_flag) begin
+                
+                if (!spi_cmd_phase) begin
+                    // Phase 0: Send W_REGISTER + CONFIG command
                     spi_data_in = `CMD_W_REGISTER | `REG_CONFIG;
                     spi_start = 1'b1;
-                    start_cmd_flag = 1'b1;
-                end
-                
-                // Byte 2: CONFIG register value
-                if (spi_transfer_done && start_cmd_flag) begin
-                    // Save previous status (read into status_reg_out)
-                    status_reg_out = spi_data_out; 
                     
-                    spi_data_in = `VAL_CONFIG_TX; 
+                    if (spi_transfer_done) begin
+                        status_reg_out = spi_data_out; // Save status
+                        spi_cmd_phase = 1'b1; // Move to data phase
+                    end
+                end else begin
+                    // Phase 1: Send CONFIG register value
+                    spi_data_in = `VAL_CONFIG_TX;
                     spi_start = 1'b1;
                     
-                    // When configuration byte completes
                     if (spi_transfer_done) begin
-                        start_cmd_flag = 1'b0; // Reset flag for next command
+                        spi_cmd_phase = 1'b0; // Reset phase
                         next_state = `STATE_WRITE_EN_AA;
                         nrf_csn = 1'b1;
                     end
@@ -115,10 +126,55 @@ module nrf24l01_controller (
             
             // ------------------------------------
             // STATE_WRITE_EN_AA: Write the EN_AA reg (Disable Auto-Ack)
-            // Byte 1: Command
-            // Byte 2: Value
+            // Phase 0: Command, Phase 1: Data
             // ------------------------------------
             `STATE_WRITE_EN_AA: begin
+                nrf_csn = 1'b0;
+                
+                if (!spi_cmd_phase) begin
+                    spi_data_in = `CMD_W_REGISTER | `REG_EN_AA;
+                    spi_start = 1'b1;
+                    
+                    if (spi_transfer_done) begin
+                        spi_cmd_phase = 1'b1;
+                    end
+                end else begin
+                    spi_data_in = `VAL_EN_AA;
+                    spi_start = 1'b1;
+                    
+                    if (spi_transfer_done) begin
+                        spi_cmd_phase = 1'b0;
+                        next_state = `STATE_WRITE_EN_RXADDR; // Add missing EN_RXADDR
+                        nrf_csn = 1'b1;
+                    end
+                end
+            end
+            
+            // ------------------------------------
+            // STATE_WRITE_EN_RXADDR: Enable RX address for data pipe 0
+            // CRITICAL: Must enable data pipe 0 for RX operation
+            // ------------------------------------  
+            `STATE_WRITE_EN_RXADDR: begin
+                nrf_csn = 1'b0;
+                
+                if (!spi_cmd_phase) begin
+                    spi_data_in = `CMD_W_REGISTER | `REG_EN_RXADDR;
+                    spi_start = 1'b1;
+                    
+                    if (spi_transfer_done) begin
+                        spi_cmd_phase = 1'b1;
+                    end
+                end else begin
+                    spi_data_in = `VAL_EN_RXADDR; // Enable pipe 0
+                    spi_start = 1'b1;
+                    
+                    if (spi_transfer_done) begin
+                        spi_cmd_phase = 1'b0;
+                        next_state = `STATE_WRITE_SETUP_AW;
+                        nrf_csn = 1'b1;
+                    end
+                end
+            end
                 nrf_csn = 1'b0;
                 // Byte 1: Write EN_AA register command
                 if (!start_cmd_flag) begin
@@ -464,10 +520,16 @@ module nrf24l01_controller (
             start_cmd_flag <= 1'b0;
             spi_start <= 1'b0; 
             spi_data_in <= 8'h00; 
+            spi_cmd_phase <= 1'b0;
             address_byte_counter <= 3'h0;
             payload_byte_counter <= 3'h0;
+            power_up_delay_counter <= 24'h0;
             rx_data_valid <= 1'b0;
         end else begin
+            // Update power-up delay counter
+            if (current_state == `STATE_INIT_START && power_up_delay_counter < POWER_UP_DELAY) begin
+                power_up_delay_counter <= power_up_delay_counter + 1;
+            end
             // --- Update sequential logic
             current_state <= next_state;
             

@@ -1,6 +1,14 @@
 #include <SPI.h>
 #include "RF24.h"
 
+// Motor control pins
+int ENA = 3;
+int ENB = 9;
+int MotorA1 = 4;
+int MotorA2 = 5;
+int MotorB1 = 6;
+int MotorB2 = 7;
+
 // Khai báo chân NRF24L01+
 RF24 radio(8, 10);  // CE, CSN
 
@@ -18,19 +26,12 @@ data receive_data;
 // Biến để theo dõi thời gian và trạng thái
 unsigned long lastTime = 0;
 unsigned long currentTime = 0;
-char currentCommand = 'X'; // Lệnh hiện tại
-char lastCommand = 'X';    // Lệnh trước đó
-
-// Function declarations
-char analyzeGesture(int x, int y, int z);
-void sendMotorCommand(char command);
 
 void setup() {
-  // Hardware Serial cho giao tiếp với Motor Controller
+  // Serial for debugging
   Serial.begin(9600);
-  delay(500);
   
-  // Khởi tạo RF24 (im lặng vì không thể debug qua Serial)
+  // Khởi tạo RF24
   radio.begin();
   radio.openReadingPipe(0, address);
   radio.startListening();
@@ -38,98 +39,138 @@ void setup() {
   radio.setDataRate(RF24_250KBPS);
   radio.setChannel(76);
   
-  // Gửi lệnh dừng ban đầu
-  sendMotorCommand('X');
+  // Khởi tạo motor pins
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(MotorA1, OUTPUT);
+  pinMode(MotorA2, OUTPUT);
+  pinMode(MotorB1, OUTPUT);
+  pinMode(MotorB2, OUTPUT);
+  
   delay(1000);
 }
 
 void loop() {
-  currentTime = millis();
-  
   // Kiểm tra có dữ liệu RF không
-  if(radio.available()) {
-    // Đọc dữ liệu từ Transmitter
+  while(radio.available()) {
     radio.read(&receive_data, sizeof(data));
     
-    // Phân tích dữ liệu và quyết định lệnh
-    char newCommand = analyzeGesture(receive_data.xAxis, receive_data.yAxis, receive_data.zAxis);
+    // Debug: In dữ liệu nhận được
+    Serial.print("X: ");
+    Serial.print(receive_data.xAxis);
+    Serial.print(" | Y: ");
+    Serial.print(receive_data.yAxis);
+    Serial.print(" | Z: ");
+    Serial.print(receive_data.zAxis);
     
-    // Chỉ gửi lệnh khi có thay đổi để tránh spam
-    if(newCommand != lastCommand) {
-      currentCommand = newCommand;
-      sendMotorCommand(currentCommand);
-      lastCommand = currentCommand;
+    // Hiển thị hướng chuyển động
+    if(receive_data.yAxis > 390) {
+      Serial.print(" | Action: FORWARD");
+    } else if(receive_data.xAxis < 310) {
+      Serial.print(" | Action: BACKWARD");
+    } else if(receive_data.xAxis < 320) {
+      Serial.print(" | Action: LEFT");
+    } else if(receive_data.xAxis > 400) {
+      Serial.print(" | Action: RIGHT");
+    } else {
+      Serial.print(" | Action: STOP");
+    }
+    Serial.println();
+    
+    // Điều khiển motor dựa trên dữ liệu nhận
+    if(receive_data.yAxis > 390) {
+      // Tiến lên - tốc độ tăng dần
+      int speed = 100; // Tốc độ tối thiểu
+      if(receive_data.yAxis >= 420) {
+        speed = 255; // Tốc độ tối đa
+      } else {
+        // Tăng dần từ 100 đến 255 trong khoảng 390-420
+        speed = map(receive_data.yAxis, 390, 420, 100, 255);
+      }
+      digitalWrite(MotorA1, LOW);
+      digitalWrite(MotorA2, HIGH);
+      digitalWrite(MotorB1, HIGH);
+      digitalWrite(MotorB2, LOW);
+      analogWrite(ENA, speed);
+      analogWrite(ENB, speed);
+      
+    } else if(receive_data.xAxis < 310) {
+      // Lùi xuống - tốc độ tăng dần
+      int speed = 100; // Tốc độ tối thiểu
+      if(receive_data.xAxis <= 335) {
+        speed = 255; // Tốc độ tối đa
+      } else {
+        // Tăng dần từ 100 đến 255 trong khoảng 310-335 (ngược)
+        speed = map(receive_data.xAxis, 310, 335, 255, 100);
+      }
+      digitalWrite(MotorA1, HIGH);
+      digitalWrite(MotorA2, LOW);
+      digitalWrite(MotorB1, LOW);
+      digitalWrite(MotorB2, HIGH);
+      analogWrite(ENA, speed);
+      analogWrite(ENB, speed);
+      
+    } else if(receive_data.xAxis < 320) {
+      // Sang trái
+      digitalWrite(MotorA1, HIGH);
+      digitalWrite(MotorA2, LOW);
+      digitalWrite(MotorB1, HIGH);
+      digitalWrite(MotorB2, LOW);
+      analogWrite(ENA, 150);
+      analogWrite(ENB, 150);
+      
+    } else if(receive_data.xAxis > 400) {
+      // Sang phải
+      digitalWrite(MotorA1, LOW);
+      digitalWrite(MotorA2, HIGH);
+      digitalWrite(MotorB1, LOW);
+      digitalWrite(MotorB2, HIGH);
+      analogWrite(ENA, 150);
+      analogWrite(ENB, 150);
+      
+    } else {
+      // Dừng
+      digitalWrite(MotorA1, LOW);
+      digitalWrite(MotorA2, LOW);
+      digitalWrite(MotorB1, LOW);
+      digitalWrite(MotorB2, LOW);
+      analogWrite(ENA, 0);
+      analogWrite(ENB, 0);
     }
     
-    lastTime = currentTime;
+    lastTime = millis();
   }
   
-  // Kiểm tra mất kết nối
+  // Kiểm tra mất kết nối - Dừng motor khi không có tín hiệu
+  currentTime = millis();
   if(currentTime - lastTime > 2000 && lastTime > 0) {
-    if(currentCommand != 'X') {
-      currentCommand = 'X';
-      sendMotorCommand('X'); // Dừng robot khi mất tín hiệu
-      lastCommand = 'X';
-    }
+    digitalWrite(MotorA1, LOW);
+    digitalWrite(MotorA2, LOW);
+    digitalWrite(MotorB1, LOW);
+    digitalWrite(MotorB2, LOW);
+    analogWrite(ENA, 0);
+    analogWrite(ENB, 0);
   }
   
-  delay(100); 
+  delay(100);
 }
 
-// Hàm phân tích cử chỉ và trả về lệnh tương ứng
-char analyzeGesture(int x, int y, int z) {
-  if(y > 390) {
-    return 'W'; // Tiến lên (ASCII 87)
-  } 
-  else if(y < 345) {
-    return 'S'; // Lùi xuống (ASCII 83)
-  }
-  // Sau đó mới đến X (trái/phải)
-  else if(x > 385) {
-    return 'A'; // Sang trái (ASCII 65)
-  }
-  else if(x < 335) {
-    return 'D'; // Sang phải (ASCII 68)
-  }
-  // Kiểm tra trục Z để xoay
-  else if(z > 340 && x <= 300) {
-    return 'R'; // Xoay phải (ASCII 82)
-  }
-  else if(z > 350 && x >= 415) {
-    return 'L'; // Xoay trái (ASCII 76)
-  }
-  // Kiểm tra vùng dừng chính xác
-  else if(x>=335 && x<=385 && y>=345 && y<=390 && z>=273 && z<=285) {
-    return 'X'; // Dừng (ASCII 88)
-  }
-  else {
-    return 'X'; 
-  }
-}
 
-// Hàm gửi lệnh đến Arduino Motor qua Hardware Serial
-void sendMotorCommand(char command) {
-  // Gửi lệnh điều khiển trước (1 ký tự)
-  Serial.write(command); 
-  
-  // Đợi một chút để đảm bảo lệnh được gửi
-  delay(5);
-}
+
 
 /*
 HARDWARE CONNECTION:
 ===================
 
-Arduino Receiver (với RF24):
+Arduino Receiver (với RF24 và L298N Motor Driver):
 - RF24: CE→D8, CSN→D10, VCC→3.3V, GND→GND
-- Serial: TX(D1) → Motor RX(D0)
-- Serial: RX(D0) → Motor TX(D1)  
-- GND → Motor GND
-
-Arduino Motor (với AFMotor Shield):
-- AFMotor Shield gắn trực tiếp
-- Serial: RX(D0) ← Receiver TX(D1)
-- Serial: TX(D1) → Receiver RX(D0)
-- GND → Receiver GND
+- L298N Motor Driver:
+  - ENA → D3 (PWM)
+  - ENB → D9 (PWM)
+  - IN1 (MotorA1) → D4
+  - IN2 (MotorA2) → D5
+  - IN3 (MotorB1) → D6
+  - IN4 (MotorB2) → D7
+  - VCC → 5V, GND → GND
 
 */

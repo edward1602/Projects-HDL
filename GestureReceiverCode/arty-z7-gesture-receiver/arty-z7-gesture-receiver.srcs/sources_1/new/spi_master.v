@@ -1,136 +1,85 @@
 module spi_master (
-    // Clock and Reset
     input clk,
     input rst_n,
-    
-    // SCK frequency divider parameter
     input [7:0] spi_clk_div,
-    
-    // Controller interface
     input start_transfer,
     output reg transfer_done,
-    
-    // Data interface
     input [7:0] data_in,
     output reg [7:0] data_out,
-
-    // SPI interface
-    output reg spi_sck, // reg because controlled in always block
-    output reg spi_mosi, // reg because controlled in always block
+    output reg spi_sck,
+    output reg spi_mosi,
     input spi_miso
 );
 
-    // State definition
-    `define IDLE     2'b00
-    `define TRANSMIT 2'b01
-    `define DONE     2'b10
-    
-    // State registers
-    reg [1:0] current_state, next_state;
-    
-    // SPI clock counter
-    reg [7:0] sck_counter;
-    
-    // SCK tick signal
-    reg sck_tick; 
-    
-    // Bit counter
-    reg [3:0] bit_counter;
-    
-    // Temporary data registers
-    reg [7:0] shift_reg_tx, shift_reg_rx;
+    localparam STATE_IDLE     = 2'd0;
+    localparam STATE_TRANSFER = 2'd1;
 
-    // ----------------------------------------------------
-    // 1. Combinational Next State Logic
-    // ----------------------------------------------------
-    always @(current_state or start_transfer or bit_counter) begin
-        next_state = current_state; // Default: maintain current state
-        case (current_state)
-            `IDLE: begin
-                if (start_transfer) // Get cmd from controller
-                    next_state = `TRANSMIT;
-            end
-    
-            `TRANSMIT: begin
-                if (bit_counter == 8) // Done transmit 1 byte (8 bits) 
-                    next_state = `DONE;
-            end
-    
-            `DONE: begin
-                next_state = `IDLE;
-            end
-            default: next_state = `IDLE;
-        endcase
-    end
-    
-    // ----------------------------------------------------
-    // 2. Sequential Logic (Clock, Shift registers, State registers)
-    // ----------------------------------------------------
+    reg [1:0] state;
+    reg [7:0] tx_shift;
+    reg [7:0] rx_shift;
+    reg [7:0] clk_div_counter;
+    reg [3:0] bit_counter;
+
+    wire [7:0] effective_div = (spi_clk_div == 8'd0) ? 8'd1 : spi_clk_div;
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            // Reset all registers
-            current_state <= `IDLE;
+            state <= STATE_IDLE;
             transfer_done <= 1'b0;
-            bit_counter <= 4'h0;
-            shift_reg_tx <= 8'h00;
-            shift_reg_rx <= 8'h00;
+            tx_shift <= 8'h00;
+            rx_shift <= 8'h00;
             data_out <= 8'h00;
-            
-            sck_counter <= 8'h00;
+            clk_div_counter <= 8'h00;
+            bit_counter <= 4'd0;
             spi_sck <= 1'b0;
-            sck_tick <= 1'b0;
             spi_mosi <= 1'b0;
         end else begin
-            // Update state
-            current_state <= next_state;
-            transfer_done <= 1'b0; // Default is low
-    
-            // SCK generation and tick logic
-            if (current_state == `TRANSMIT) begin
-                if (sck_counter == spi_clk_div - 1) begin
-                    sck_counter <= 8'h00;
-                    spi_sck <= ~spi_sck; 
-                    sck_tick <= 1'b1;
-                end else begin
-                    sck_counter <= sck_counter + 1;
-                    sck_tick <= 1'b0;
-                end
-            end else begin
-                // Ensure SCK is low when IDLE/DONE
-                spi_sck <= 1'b0; 
-                sck_counter <= 8'h00;
-                sck_tick <= 1'b0;
-            end
-    
-            // FSM logic
-            case (current_state)
-                `IDLE: begin
-                    if (start_transfer) begin
-                        shift_reg_tx <= data_in; // Load input data
-                        bit_counter <= 4'h0;
-                    end
-                    spi_mosi <= 1'b0; // MOSI low when IDLE
-                end
-    
-                `TRANSMIT: begin
-                    // Generate MOSI: Send MSB first
-                    spi_mosi <= shift_reg_tx[7];
-                    
-    
-                    // Shift on rising edge of SCK (CPOL=0, CPHA=0)
-                    if (sck_tick & spi_sck) begin // Check (sck_tick=1) and (spi_sck=1)
-                        shift_reg_tx <= shift_reg_tx << 1; 
-                        shift_reg_rx <= {shift_reg_rx[6:0], spi_miso}; 
-                        bit_counter <= bit_counter + 1;
-                    end
-                    
-                end
-    
-                `DONE: begin
-                    data_out <= shift_reg_rx;
-                    transfer_done <= 1'b1;
+            transfer_done <= 1'b0;
+
+            case (state)
+                STATE_IDLE: begin
+                    spi_sck <= 1'b0;
                     spi_mosi <= 1'b0;
-                    $display("[SPI] Done. Data_out %h", data_out);
+                    clk_div_counter <= 8'h00;
+                    bit_counter <= 4'd0;
+
+                    if (start_transfer) begin
+                        tx_shift <= data_in;
+                        rx_shift <= 8'h00;
+                        spi_mosi <= data_in[7];
+                        state <= STATE_TRANSFER;
+                    end
+                end
+
+                STATE_TRANSFER: begin
+                    if (clk_div_counter == (effective_div - 1)) begin
+                        clk_div_counter <= 8'h00;
+
+                        if (spi_sck == 1'b0) begin
+                            spi_sck <= 1'b1;
+                            rx_shift <= {rx_shift[6:0], spi_miso};
+                            if (bit_counter == 4'd7) begin
+                                data_out <= {rx_shift[6:0], spi_miso};
+                            end
+                            bit_counter <= bit_counter + 1'b1;
+                        end else begin
+                            spi_sck <= 1'b0;
+                            if (bit_counter == 4'd8) begin
+                                transfer_done <= 1'b1;
+                                spi_mosi <= 1'b0;
+                                state <= STATE_IDLE;
+                            end else begin
+                                tx_shift <= {tx_shift[6:0], 1'b0};
+                                spi_mosi <= tx_shift[6];
+                            end
+                        end
+                    end else begin
+                        clk_div_counter <= clk_div_counter + 1'b1;
+                    end
+                end
+
+                default: begin
+                    state <= STATE_IDLE;
                 end
             endcase
         end

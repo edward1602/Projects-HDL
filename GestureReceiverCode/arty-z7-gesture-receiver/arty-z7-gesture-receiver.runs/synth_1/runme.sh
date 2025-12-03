@@ -40,4 +40,4 @@ EAStep()
      fi
 }
 
-EAStep vivado -log arty_z7_nrf_test_top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source arty_z7_nrf_test_top.tcl
+EAStep vivado -log top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source top.tcl

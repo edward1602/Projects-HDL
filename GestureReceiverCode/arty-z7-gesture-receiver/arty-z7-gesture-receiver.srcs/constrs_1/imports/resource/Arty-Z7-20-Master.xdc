@@ -107,11 +107,11 @@ set_property -dict { PACKAGE_PIN N17    IOSTANDARD LVCMOS33 } [get_ports { nrf_s
 
 ## ChipKit Inner Digital Header --- PRINT TO ARDUINO ----
 set_property -dict { PACKAGE_PIN U5     IOSTANDARD LVCMOS33 } [get_ports { payload_ready }]; #IO_L19N_T3_VREF_13  Sch=CK_IO26
-set_property -dict { PACKAGE_PIN V5     IOSTANDARD LVCMOS33 } [get_ports { nrf_irq }]; #IO_L6N_T0_VREF_13   Sch=CK_IO27
-set_property -dict { PACKAGE_PIN V6     IOSTANDARD LVCMOS33 } [get_ports { nrf_csn }]; #IO_L22P_T3_13       Sch=CK_IO28
-set_property -dict { PACKAGE_PIN U7     IOSTANDARD LVCMOS33 } [get_ports { nrf_mosi }]; #IO_L11P_T1_SRCC_13  Sch=CK_IO29
-set_property -dict { PACKAGE_PIN V7     IOSTANDARD LVCMOS33 } [get_ports { nrf_miso }]; #IO_L11N_T1_SRCC_13  Sch=CK_IO30
-set_property -dict { PACKAGE_PIN U8     IOSTANDARD LVCMOS33 } [get_ports { nrf_sck }]; #IO_L17N_T2_13       Sch=CK_IO31
+#set_property -dict { PACKAGE_PIN V5     IOSTANDARD LVCMOS33 } [get_ports { nrf_irq }]; #IO_L6N_T0_VREF_13   Sch=CK_IO27
+#set_property -dict { PACKAGE_PIN V6     IOSTANDARD LVCMOS33 } [get_ports { nrf_csn }]; #IO_L22P_T3_13       Sch=CK_IO28
+#set_property -dict { PACKAGE_PIN U7     IOSTANDARD LVCMOS33 } [get_ports { nrf_mosi }]; #IO_L11P_T1_SRCC_13  Sch=CK_IO29
+#set_property -dict { PACKAGE_PIN V7     IOSTANDARD LVCMOS33 } [get_ports { nrf_miso }]; #IO_L11N_T1_SRCC_13  Sch=CK_IO30
+#set_property -dict { PACKAGE_PIN U8     IOSTANDARD LVCMOS33 } [get_ports { nrf_sck }]; #IO_L17N_T2_13       Sch=CK_IO31
 #set_property -dict { PACKAGE_PIN V8     IOSTANDARD LVCMOS33 } [get_ports { ck_io32 }]; #IO_L15P_T2_DQS_13   Sch=CK_IO32
 #set_property -dict { PACKAGE_PIN V10    IOSTANDARD LVCMOS33 } [get_ports { ck_io33 }]; #IO_L21N_T3_DQS_13   Sch=CK_IO33
 #set_property -dict { PACKAGE_PIN W10    IOSTANDARD LVCMOS33 } [get_ports { ck_io34 }]; #IO_L16P_T2_13       Sch=CK_IO34

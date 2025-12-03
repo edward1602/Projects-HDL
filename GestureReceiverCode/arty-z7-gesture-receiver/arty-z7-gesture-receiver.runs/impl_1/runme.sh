@@ -42,6 +42,6 @@ EAStep()
 
 # pre-commands:
 /bin/touch .init_design.begin.rst
-EAStep vivado -log arty_z7_nrf_test_top.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source arty_z7_nrf_test_top.tcl -notrace
+EAStep vivado -log top.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source top.tcl -notrace
 
 

@@ -1,10 +1,3 @@
-#define PIN_IRQ   2
-#define PIN_CE    3
-#define PIN_CSN   4
-#define PIN_MOSI  5
-#define PIN_MISO  6
-#define PIN_SCK   7
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -26,12 +19,18 @@ void loop() {
   int sig5 = digitalRead(6); // miso
   int sig6 = digitalRead(7); // sck
 
-  Serial.print(sig1); Serial.print(", ");
-  Serial.print(sig2); Serial.print(", ");
-  Serial.print(sig3); Serial.print(", ");
-  Serial.print(sig4); Serial.print(", ");
-  Serial.print(sig5); Serial.print(", ");
-  Serial.print(sig6); Serial.println();
+  Serial.print(sig1); 
+  // Serial.print(", ");
+  // Serial.print(sig2); 
+  // Serial.print(", ");
+  // Serial.print(sig3); 
+  // Serial.print(", ");
+  // Serial.print(sig4); 
+  // Serial.print(", ");
+  // Serial.print(sig5); 
+  // Serial.print(", ");
+  // Serial.print(sig6); 
+  Serial.println();
 
   // delay(10);
 }

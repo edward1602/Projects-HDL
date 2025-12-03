@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
-| Date             : Wed Nov 26 17:16:32 2025
+| Date             : Tue Dec  2 23:05:29 2025
 | Host             : myDELL running 64-bit major release  (build 9200)
 | Command          : report_power -file arty_z7_nrf_test_top_power_routed.rpt -pb arty_z7_nrf_test_top_power_summary_routed.pb -rpx arty_z7_nrf_test_top_power_routed.rpx
 | Design           : arty_z7_nrf_test_top
@@ -30,14 +30,14 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.111        |
+| Total On-Chip Power (W)  | 0.122        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.005        |
+| Dynamic (W)              | 0.016        |
 | Device Static (W)        | 0.106        |
 | Effective TJA (C/W)      | 11.5         |
-| Max Ambient (C)          | 83.7         |
-| Junction Temperature (C) | 26.3         |
+| Max Ambient (C)          | 83.6         |
+| Junction Temperature (C) | 26.4         |
 | Confidence Level         | Medium       |
 | Setting File             | ---          |
 | Simulation Activity File | ---          |
@@ -53,15 +53,15 @@ Table of Contents
 | On-Chip        | Power (W) | Used     | Available | Utilization (%) |
 +----------------+-----------+----------+-----------+-----------------+
 | Clocks         |     0.002 |        3 |       --- |             --- |
-| Slice Logic    |    <0.001 |      260 |       --- |             --- |
-|   LUT as Logic |    <0.001 |       88 |     53200 |            0.17 |
-|   CARRY4       |    <0.001 |       20 |     13300 |            0.15 |
-|   Register     |    <0.001 |      137 |    106400 |            0.13 |
+| Slice Logic    |     0.001 |      314 |       --- |             --- |
+|   LUT as Logic |     0.001 |      130 |     53200 |            0.24 |
+|   CARRY4       |    <0.001 |       15 |     13300 |            0.11 |
+|   Register     |    <0.001 |      123 |    106400 |            0.12 |
 |   Others       |     0.000 |        6 |       --- |             --- |
-| Signals        |    <0.001 |      198 |       --- |             --- |
-| I/O            |     0.002 |       11 |       125 |            8.80 |
+| Signals        |    <0.001 |      199 |       --- |             --- |
+| I/O            |     0.013 |       13 |       125 |           10.40 |
 | Static Power   |     0.106 |          |           |                 |
-| Total          |     0.111 |          |           |                 |
+| Total          |     0.122 |          |           |                 |
 +----------------+-----------+----------+-----------+-----------------+
 
 
@@ -71,9 +71,9 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) |
 +-----------+-------------+-----------+-------------+------------+
-| Vccint    |       1.000 |     0.010 |       0.002 |      0.007 |
-| Vccaux    |       1.800 |     0.010 |       0.000 |      0.010 |
-| Vcco33    |       3.300 |     0.002 |       0.001 |      0.001 |
+| Vccint    |       1.000 |     0.011 |       0.004 |      0.007 |
+| Vccaux    |       1.800 |     0.011 |       0.000 |      0.010 |
+| Vcco33    |       3.300 |     0.005 |       0.004 |      0.001 |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |
 | Vcco18    |       1.800 |     0.000 |       0.000 |      0.000 |
 | Vcco15    |       1.500 |     0.000 |       0.000 |      0.000 |
@@ -147,9 +147,9 @@ Table of Contents
 +----------------------+-----------+
 | Name                 | Power (W) |
 +----------------------+-----------+
-| arty_z7_nrf_test_top |     0.005 |
-|   nrf_controller     |     0.001 |
-|     spi_master_inst  |    <0.001 |
+| arty_z7_nrf_test_top |     0.016 |
+|   nrf_controller     |     0.002 |
+|     spi_master_inst  |     0.001 |
 +----------------------+-----------+
 
 

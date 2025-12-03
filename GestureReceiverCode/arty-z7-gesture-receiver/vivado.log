@@ -1,0 +1,70 @@
+#-----------------------------------------------------------
+# Vivado v2018.2 (64-bit)
+# SW Build 2258646 on Thu Jun 14 20:03:12 MDT 2018
+# IP Build 2256618 on Thu Jun 14 22:10:49 MDT 2018
+# Start of session at: Wed Dec  3 11:57:35 2025
+# Process ID: 1584
+# Current directory: E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent16504 E:\Git_wp\Gesture_Control_Robot\GestureReceiverCode\arty-z7-gesture-receiver\arty-z7-gesture-receiver.xpr
+# Log file: E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/vivado.log
+# Journal file: E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.xpr
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_defines.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_controller.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_receiver.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_defines.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/robot_receiver_top.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf_tx_test_core.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf_tx_system_top.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/arty_nrf_receiver_top_tb.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/fake_nrf.v'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_nrf24l01_controller.v'.
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Vivado/2018.2/data/ip'.
+open_project: Time (s): cpu = 00:00:18 ; elapsed = 00:00:10 . Memory (MB): peak = 887.223 ; gain = 132.750
+update_compile_order -fileset sources_1
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/imports/new/tb_spi_master_new.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/imports/new/tb_spi_master_new.v
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/imports/new/tb_nrf24l01_simple_rx_controller.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/imports/new/tb_nrf24l01_simple_rx_controller.v
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/imports/new/tb_data_parser.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/imports/new/tb_data_parser.v
+update_compile_order -fileset sim_1
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_defines.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_controller.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_defines.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/robot_receiver_top.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_receiver.v] -no_script -reset -force -quiet
+remove_files  {E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_defines.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_controller.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_defines.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/robot_receiver_top.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_receiver.v}
+update_compile_order -fileset sim_1
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/arty_nrf_receiver_top_tb.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_nrf24l01_controller.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 {E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/arty_nrf_receiver_top_tb.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/tb_nrf24l01_controller.v}
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf_tx_system_top.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf_tx_test_core.v] -no_script -reset -force -quiet
+remove_files  {E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_controller.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf_tx_system_top.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf_tx_test_core.v}
+add_files -norecurse {E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/spi_master.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/data_parser.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/payload_assembler.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_defines.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_controller.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/pwm_generator.v E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/motion_controller.v}
+WARNING: [filemgmt 56-12] File 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/spi_master.v' cannot be added to the project because it already exists in the project, skipping this file
+WARNING: [filemgmt 56-12] File 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/data_parser.v' cannot be added to the project because it already exists in the project, skipping this file
+WARNING: [filemgmt 56-12] File 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/payload_assembler.v' cannot be added to the project because it already exists in the project, skipping this file
+WARNING: [filemgmt 56-12] File 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/pwm_generator.v' cannot be added to the project because it already exists in the project, skipping this file
+WARNING: [filemgmt 56-12] File 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/motion_controller.v' cannot be added to the project because it already exists in the project, skipping this file
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+set_property top tb_top [get_filesets sim_1]
+set_property top_lib xil_defaultlib [get_filesets sim_1]
+update_compile_order -fileset sim_1
+export_ip_user_files -of_objects  [get_files E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/fake_nrf.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sim_1/new/fake_nrf.v
+set_property is_enabled false [get_files  E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_defines.v]
+set_property is_enabled true [get_files  E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_defines.v]
+set_property is_enabled false [get_files  E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/pwm_generator.v]
+set_property is_enabled true [get_files  E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/pwm_generator.v]
+update_compile_order -fileset sources_1

@@ -1,0 +1,7 @@
+Running: xsim.dir/arty_z7_nrf_test_top_tb_behav/xsimk.exe -simmode gui -wdb arty_z7_nrf_test_top_tb_behav.wdb -simrunnum 0 -socket 52797
+Design successfully loaded
+Design Loading Memory Usage: 8108 KB (Peak: 8108 KB)
+Design Loading CPU Usage: 0 ms
+Simulation completed
+Simulation Memory Usage: 17024 KB (Peak: 17024 KB)
+Simulation CPU Usage: 3562 ms

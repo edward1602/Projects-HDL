@@ -1,0 +1,12 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"../../../../arty-z7-gesture-receiver.srcs/sources_1/new/arty_z7_nrf_test_top.v" \
+"../../../../arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_simple_rx_controller.v" \
+"../../../../arty-z7-gesture-receiver.srcs/sources_1/new/spi_master.v" \
+"../../../../arty-z7-gesture-receiver.srcs/sources_1/new/top_receiver.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

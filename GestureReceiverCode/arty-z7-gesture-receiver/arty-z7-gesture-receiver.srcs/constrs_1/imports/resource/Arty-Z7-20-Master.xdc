@@ -21,9 +21,13 @@ set_false_path -to [get_ports { nrf_csn }]
 set_false_path -to [get_ports { nrf_sck }]
 set_false_path -to [get_ports { nrf_mosi }]
 
-# If you use Motor pins later, uncomment the lines below:
-# set_false_path -to [get_ports { pwm_motor_* }]
-# set_false_path -to [get_ports { motor_dir[*] }]
+# Motor pins timing - no strict timing needed for motor control
+set_false_path -to [get_ports { pwm_ena }]
+set_false_path -to [get_ports { pwm_enb }]
+set_false_path -to [get_ports { motor_a1 }]
+set_false_path -to [get_ports { motor_a2 }]
+set_false_path -to [get_ports { motor_b1 }]
+set_false_path -to [get_ports { motor_b2 }]
 
 ## Clock Signal
 set_property -dict { PACKAGE_PIN H16    IOSTANDARD LVCMOS33 } [get_ports { clk }]; #IO_L13P_T2_MRCC_35 Sch=SYSCLK
@@ -85,13 +89,14 @@ set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports { reset
 ## ChipKit Outer Digital Header (ARDUINO IO0 -> IO13)
 ## =========================================================
 
-## MOTOR CONTROL (IO0 -> IO5)
-set_property -dict { PACKAGE_PIN T14    IOSTANDARD LVCMOS33 } [get_ports { pwm_motor_a }]; #IO_L5P_T0_34             Sch=CK_IO0
-set_property -dict { PACKAGE_PIN U12    IOSTANDARD LVCMOS33 } [get_ports { motor_dir[0] }]; #IO_L2N_T0_34             Sch=CK_IO1
-set_property -dict { PACKAGE_PIN U13    IOSTANDARD LVCMOS33 } [get_ports { motor_dir[1] }]; #IO_L3P_T0_DQS_PUDC_B_34 Sch=CK_IO2
-set_property -dict { PACKAGE_PIN V13    IOSTANDARD LVCMOS33 } [get_ports { pwm_motor_b }]; #IO_L3N_T0_DQS_34         Sch=CK_IO3
-set_property -dict { PACKAGE_PIN V15    IOSTANDARD LVCMOS33 } [get_ports { motor_dir[2] }]; #IO_L10P_T1_34            Sch=CK_IO4
-set_property -dict { PACKAGE_PIN T15    IOSTANDARD LVCMOS33 } [get_ports { motor_dir[3] }]; #IO_L5N_T0_34             Sch=CK_IO5
+## MOTOR CONTROL (IO0 -> IO5) - L298N Motor Driver Interface
+## ENA (PWM) -> IO0, IN1 -> IO1, IN2 -> IO2, ENB (PWM) -> IO3, IN3 -> IO4, IN4 -> IO5
+set_property -dict { PACKAGE_PIN T14    IOSTANDARD LVCMOS33 } [get_ports { pwm_ena }]; #IO_L5P_T0_34             Sch=CK_IO0
+set_property -dict { PACKAGE_PIN U12    IOSTANDARD LVCMOS33 } [get_ports { motor_a1 }]; #IO_L2N_T0_34             Sch=CK_IO1
+set_property -dict { PACKAGE_PIN U13    IOSTANDARD LVCMOS33 } [get_ports { motor_a2 }]; #IO_L3P_T0_DQS_PUDC_B_34 Sch=CK_IO2
+set_property -dict { PACKAGE_PIN V13    IOSTANDARD LVCMOS33 } [get_ports { pwm_enb }]; #IO_L3N_T0_DQS_34         Sch=CK_IO3
+set_property -dict { PACKAGE_PIN V15    IOSTANDARD LVCMOS33 } [get_ports { motor_b1 }]; #IO_L10P_T1_34            Sch=CK_IO4
+set_property -dict { PACKAGE_PIN T15    IOSTANDARD LVCMOS33 } [get_ports { motor_b2 }]; #IO_L5N_T0_34             Sch=CK_IO5
 
 ## IO6, IO7 (Not used yet)
 #set_property -dict { PACKAGE_PIN R16    IOSTANDARD LVCMOS33 } [get_ports { ck_io6  }]; #IO_L19P_T3_34            Sch=CK_IO6

@@ -1,69 +1,87 @@
-//==============================================================================
-// NRF24L01 SIMPLIFIED RX-ONLY DEFINITIONS FOR ARTY Z7
-//==============================================================================
-// This file contains simplified definitions for RX-only operation on Arty Z7.
-// The configuration is optimized for simple gesture data reception without
-// any transmission capability.
-//
-// RX-ONLY Configuration for Arty Z7:
-// - Operating frequency: 2.476 GHz (Channel 76)
-// - Data rate: 250 Kbps (matches Arduino transmitter) (best compatibility)
-// - Address width: 5 bytes
-// - Payload width: 6 bytes (for 3-axis gesture data: X, Y, Z) 
-// - Auto-acknowledgment: Disabled (simplex communication)
-// - Mode: RX only - no transmission capability needed
-//==============================================================================
+`ifndef NRF24L01_RX_DEFINES_V
+`define NRF24L01_RX_DEFINES_V
 
-// --- NRF24L01 SPI COMMANDS (Essential for RX) ---
-`define CMD_R_REGISTER      8'b00000000 // Read command and status registers
-`define CMD_W_REGISTER      8'b00100000 // Write command and status registers  
-`define CMD_R_RX_PAYLOAD    8'b01100001 // Read RX payload (main command for data reception)
-`define CMD_FLUSH_RX        8'b11100010 // Flush RX FIFO (clear old data)
+	// SPI command opcodes
+	localparam [7:0] CMD_R_REGISTER   = 8'h00;
+	localparam [7:0] CMD_W_REGISTER   = 8'h20;
+	localparam [7:0] CMD_R_RX_PAYLOAD = 8'h61;
+	localparam [7:0] CMD_FLUSH_TX     = 8'hE1;
+	localparam [7:0] CMD_FLUSH_RX     = 8'hE2;
+	localparam [7:0] CMD_NOP          = 8'hFF;
+	localparam [7:0] CMD_ACTIVATE     = 8'h50;
 
-// --- NRF24L01 REGISTER ADDRESSES (RX Essential) ---
-`define REG_CONFIG          8'h00      // Configuration register
-`define REG_EN_RXADDR       8'h02      // Enable RX addresses (must enable pipe 0)
-`define REG_SETUP_AW        8'h03      // Setup of address widths
-`define REG_RF_CH           8'h05      // RF channel frequency
-`define REG_RF_SETUP        8'h06      // RF setup register  
-`define REG_STATUS          8'h07      // Status register
-`define REG_RX_ADDR_P0      8'h0A      // Receive address data pipe 0
-`define REG_RX_PW_P0        8'h11      // RX payload width for data pipe 0
+	// Register addresses
+	localparam [7:0] REG_CONFIG       = 8'h00;
+	localparam [7:0] REG_EN_AA        = 8'h01;
+	localparam [7:0] REG_EN_RXADDR    = 8'h02;
+	localparam [7:0] REG_SETUP_AW     = 8'h03;
+	localparam [7:0] REG_SETUP_RETR   = 8'h04;
+	localparam [7:0] REG_RF_CH        = 8'h05;
+	localparam [7:0] REG_RF_SETUP     = 8'h06;
+	localparam [7:0] REG_STATUS       = 8'h07;
+	localparam [7:0] REG_RX_ADDR_P0   = 8'h0A;
+	localparam [7:0] REG_RX_PW_P0     = 8'h11;
+	localparam [7:0] REG_FIFO_STATUS  = 8'h17;
+	localparam [7:0] REG_DYNPD        = 8'h1C;
+	localparam [7:0] REG_FEATURE      = 8'h1D;
 
-// --- SIMPLIFIED RX-ONLY CONFIGURATION VALUES ---
-`define VAL_CONFIG_RX_ONLY  8'h0F      // PWR_UP=1, PRIM_RX=1, EN_CRC=1, CRCO=1
-`define VAL_EN_RXADDR       8'h01      // Enable data pipe 0 only
-`define VAL_SETUP_AW        8'h03      // 5 bytes address width
-`define VAL_RF_CH           8'h4C      // RF channel 76 (2.476 GHz)
-`define VAL_RF_SETUP        8'h26      // 250Kbps, -6dBm (matches Arduino transmitter)
-`define VAL_RX_PW_P0        8'h06      // 6 bytes payload width
+	// Register default values
+	localparam [7:0] VAL_CONFIG_BASE  = 8'h0C;
+	localparam [7:0] VAL_CONFIG_PWRUP = 8'h0E;
+	localparam [7:0] VAL_CONFIG_RX    = 8'h0F;
+	localparam [7:0] VAL_STATUS_CLEAR = 8'h70;
+	localparam [7:0] VAL_STATUS_RX_DR = 8'h40;
+	localparam [7:0] VAL_EN_AA_NONE   = 8'h00;
+	localparam [7:0] VAL_EN_RXADDR_P0 = 8'h01;
+	localparam [7:0] VAL_SETUP_AW_5B  = 8'h03;
+	localparam [7:0] VAL_SETUP_RETR   = 8'h5F;
 
-// --- SIMPLE 5-BYTE RX ADDRESS ---
-// Address for receiving gesture data: 0xE7E7E7E7E7
-`define ADDR_BYTE_0         8'hE7      // Address byte 0 (LSB)
-`define ADDR_BYTE_1         8'hE7      // Address byte 1
-`define ADDR_BYTE_2         8'hE7      // Address byte 2 
-`define ADDR_BYTE_3         8'hE7      // Address byte 3
-`define ADDR_BYTE_4         8'hE7      // Address byte 4 (MSB)
+	// State encoding
+	localparam [5:0] STATE_IDLE                 = 6'd0;
+	localparam [5:0] STATE_INIT_DELAY           = 6'd1;
+	localparam [5:0] STATE_WRITE_CONFIG0_CMD    = 6'd2;
+	localparam [5:0] STATE_WRITE_CONFIG0_DATA   = 6'd3;
+	localparam [5:0] STATE_WRITE_SETUP_RETR_CMD = 6'd4;
+	localparam [5:0] STATE_WRITE_SETUP_RETR_DATA= 6'd5;
+	localparam [5:0] STATE_WRITE_RF_SETUP_CMD   = 6'd6;
+	localparam [5:0] STATE_WRITE_RF_SETUP_DATA  = 6'd7;
+	localparam [5:0] STATE_TOGGLE_FEATURES_CMD  = 6'd8;
+	localparam [5:0] STATE_TOGGLE_FEATURES_DATA = 6'd9;
+	localparam [5:0] STATE_WRITE_FEATURE_CMD    = 6'd10;
+	localparam [5:0] STATE_WRITE_FEATURE_DATA   = 6'd11;
+	localparam [5:0] STATE_WRITE_DYNPD_CMD      = 6'd12;
+	localparam [5:0] STATE_WRITE_DYNPD_DATA     = 6'd13;
+	localparam [5:0] STATE_WRITE_EN_AA_CMD      = 6'd14;
+	localparam [5:0] STATE_WRITE_EN_AA_DATA     = 6'd15;
+	localparam [5:0] STATE_WRITE_EN_RXADDR_CMD  = 6'd16;
+	localparam [5:0] STATE_WRITE_EN_RXADDR_DATA = 6'd17;
+	localparam [5:0] STATE_WRITE_SETUP_AW_CMD   = 6'd18;
+	localparam [5:0] STATE_WRITE_SETUP_AW_DATA  = 6'd19;
+	localparam [5:0] STATE_WRITE_RF_CH_CMD      = 6'd20;
+	localparam [5:0] STATE_WRITE_RF_CH_DATA     = 6'd21;
+	localparam [5:0] STATE_WRITE_RX_PW_CMD      = 6'd22;
+	localparam [5:0] STATE_WRITE_RX_PW_DATA     = 6'd23;
+	localparam [5:0] STATE_WRITE_RX_ADDR_CMD    = 6'd24;
+	localparam [5:0] STATE_WRITE_RX_ADDR_BYTE   = 6'd25;
+	localparam [5:0] STATE_WRITE_STATUS_CMD     = 6'd26;
+	localparam [5:0] STATE_WRITE_STATUS_DATA    = 6'd27;
+	localparam [5:0] STATE_FLUSH_RX_CMD         = 6'd28;
+	localparam [5:0] STATE_FLUSH_TX_CMD         = 6'd29;
+	localparam [5:0] STATE_WRITE_CONFIG_PWR_CMD = 6'd30;
+	localparam [5:0] STATE_WRITE_CONFIG_PWR_DATA= 6'd31;
+	localparam [5:0] STATE_POWERUP_DELAY        = 6'd32;
+	localparam [5:0] STATE_WRITE_CONFIG_RX_CMD  = 6'd33;
+	localparam [5:0] STATE_WRITE_CONFIG_RX_DATA = 6'd34;
+	localparam [5:0] STATE_WRITE_STATUS_RX_CMD  = 6'd35;
+	localparam [5:0] STATE_WRITE_STATUS_RX_DATA = 6'd36;
+	localparam [5:0] STATE_READY                = 6'd37;
+	localparam [5:0] STATE_POLL_FIFO_CMD        = 6'd38;
+	localparam [5:0] STATE_POLL_FIFO_DATA       = 6'd39;
+	localparam [5:0] STATE_READ_PAYLOAD_CMD     = 6'd40;
+	localparam [5:0] STATE_READ_PAYLOAD_BYTE    = 6'd41;
+	localparam [5:0] STATE_CLEAR_IRQ_CMD        = 6'd42;
+	localparam [5:0] STATE_CLEAR_IRQ_DATA       = 6'd43;
+	localparam [5:0] STATE_FORCE_RESET          = 6'd44;
+	localparam [5:0] STATE_RAISE_CSN            = 6'd63;
 
-// --- SIMPLIFIED RX-ONLY STATE MACHINE ---
-`define STATE_IDLE              5'd00  // Idle state
-
-// SIMPLE RX INITIALIZATION (States 01-09)
-`define STATE_INIT_START        5'd01  // Start with power-up delay
-`define STATE_WRITE_CONFIG      5'd02  // Write CONFIG register (RX mode)
-`define STATE_WRITE_EN_RXADDR   5'd03  // Enable RX data pipe 0
-`define STATE_WRITE_SETUP_AW    5'd04  // Set 5-byte address width
-`define STATE_WRITE_RF_CH       5'd05  // Set RF channel
-`define STATE_WRITE_RF_SETUP    5'd06  // Configure RF settings
-`define STATE_WRITE_RX_PW       5'd07  // Set RX payload width
-`define STATE_WRITE_RX_ADDR_CMD 5'd08  // Send RX address command
-`define STATE_WRITE_RX_ADDR_BYTE 5'd09 // Write RX address bytes
-`define STATE_RX_READY          5'd10  // RX mode active - ready to receive
-
-// SIMPLE RX OPERATION (States 11-14)
-`define STATE_RX_STATUS_CMD     5'd11  // Poll: send STATUS read command
-`define STATE_RX_STATUS_READ    5'd12  // Poll: read STATUS byte
-`define STATE_RX_READ_PAYLOAD_CMD 5'd13 // Send read payload command
-`define STATE_RX_READ_PAYLOAD_BYTE 5'd14 // Read payload bytes
-`define STATE_RX_CLEAR_IRQ      5'd15  // Clear RX_DR interrupt
+`endif // NRF24L01_RX_DEFINES_V

@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
-| Date             : Fri Dec  5 09:39:51 2025
+| Date             : Fri Dec  5 10:06:06 2025
 | Host             : myDELL running 64-bit major release  (build 9200)
 | Command          : report_power -file top_v2_power_routed.rpt -pb top_v2_power_summary_routed.pb -rpx top_v2_power_routed.rpx
 | Design           : top_v2
@@ -53,14 +53,14 @@ Table of Contents
 | On-Chip        | Power (W) | Used     | Available | Utilization (%) |
 +----------------+-----------+----------+-----------+-----------------+
 | Clocks         |     0.004 |        3 |       --- |             --- |
-| Slice Logic    |     0.001 |     1076 |       --- |             --- |
-|   LUT as Logic |     0.001 |      485 |     53200 |            0.91 |
-|   CARRY4       |    <0.001 |       67 |     13300 |            0.50 |
-|   Register     |    <0.001 |      363 |    106400 |            0.34 |
-|   F7/F8 Muxes  |    <0.001 |        2 |     53200 |           <0.01 |
+| Slice Logic    |     0.002 |     1124 |       --- |             --- |
+|   LUT as Logic |     0.002 |      507 |     53200 |            0.95 |
+|   CARRY4       |    <0.001 |       73 |     13300 |            0.55 |
+|   Register     |    <0.001 |      388 |    106400 |            0.36 |
+|   F7/F8 Muxes  |    <0.001 |        1 |     53200 |           <0.01 |
 |   Others       |     0.000 |        6 |       --- |             --- |
-| Signals        |     0.001 |      779 |       --- |             --- |
-| I/O            |     0.005 |       13 |       125 |           10.40 |
+| Signals        |     0.002 |      805 |       --- |             --- |
+| I/O            |     0.004 |       12 |       125 |            9.60 |
 | Static Power   |     0.106 |          |           |                 |
 | Total          |     0.118 |          |           |                 |
 +----------------+-----------+----------+-----------+-----------------+
@@ -72,7 +72,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) |
 +-----------+-------------+-----------+-------------+------------+
-| Vccint    |       1.000 |     0.014 |       0.007 |      0.007 |
+| Vccint    |       1.000 |     0.016 |       0.008 |      0.007 |
 | Vccaux    |       1.800 |     0.010 |       0.000 |      0.010 |
 | Vcco33    |       3.300 |     0.002 |       0.001 |      0.001 |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |
@@ -149,7 +149,7 @@ Table of Contents
 | Name                     | Power (W) |
 +--------------------------+-----------+
 | top_v2                   |     0.012 |
-|   nrf_controller         |     0.002 |
+|   nrf_controller         |     0.004 |
 |     spi_master_inst      |    <0.001 |
 |   payload_assembler_inst |    <0.001 |
 +--------------------------+-----------+

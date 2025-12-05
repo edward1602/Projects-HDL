@@ -19,7 +19,7 @@ module top_v2 (
     localparam [15:0] EXPECTED_X = 16'd100;
     localparam [15:0] EXPECTED_Y = 16'd120;
     localparam [15:0] EXPECTED_Z = 16'd140;
-    localparam integer USE_IRQ = 1;
+    localparam integer USE_IRQ = 0;
 
     wire rst_n;
     wire rx_ready;
@@ -165,7 +165,7 @@ module top_v2 (
         if (!rst_n) begin
             led_state <= 4'b0000;
         end else begin
-            led_state[0] <= led0_latched;
+            led_state[0] <= led0_latched || (nrf_controller.current_state == 6'd44);
             led_state[1] <= led1_latched;
             led_state[2] <= led2_latched;
             led_state[3] <= led3_latched;

@@ -54,7 +54,7 @@ module top (
         end
     end
 
-    nrf24l01_simple_rx_controller #(
+    nrf24l01_rx_controller #(
         .USE_IRQ(0)
     ) nrf_controller (
         .clk(clk),
@@ -74,27 +74,20 @@ module top (
     reg [3:0] led_state;
     reg [26:0] led0_counter;
     reg led0_latched;
-    reg [47:0] last_payload;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             led0_counter <= 27'd0;
             led0_latched <= 1'b0;
-            last_payload <= 48'h0;
+        end else if (payload_ready_pulse) begin
+            led0_latched <= 1'b1;
+            led0_counter <= LED0_HOLD_TICKS;
+        end else if (led0_counter != 0) begin
+            led0_counter <= led0_counter - 1'b1;
+            if (led0_counter == 1)
+                led0_latched <= 1'b0;
         end else begin
-            if (led0_counter != 0) begin
-                led0_counter <= led0_counter - 1'b1;
-                if (led0_counter == 1)
-                    led0_latched <= 1'b0;
-            end
-
-            if (payload_ready_pulse) begin
-                if (rx_payload != last_payload) begin
-                    led0_latched <= 1'b1;
-                    led0_counter <= LED0_HOLD_TICKS;
-                end
-                last_payload <= rx_payload;
-            end
+//            led0_latched <= 1'b0;
         end
     end
 

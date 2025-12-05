@@ -92,12 +92,6 @@ void loop() {
   Serial.print(send_data.yAxis);
   Serial.print(" | Z: ");
   Serial.print(send_data.zAxis);
-  // Serial.print(" | Gui: ");
-  // Serial.print(result ? "OK" : "FAIL");
-  // Serial.print(" | TX_OK: ");
-  // Serial.print(tx_ok ? "Y" : "N");
-  Serial.print("| IRQ pin: ");
-  Serial.println(digitalRead(irq_pin));
   
   delay(500); // 10Hz
 }

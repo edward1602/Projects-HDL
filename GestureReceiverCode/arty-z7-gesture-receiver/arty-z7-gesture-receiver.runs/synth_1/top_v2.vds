@@ -2,8 +2,8 @@
 # Vivado v2018.2 (64-bit)
 # SW Build 2258646 on Thu Jun 14 20:03:12 MDT 2018
 # IP Build 2256618 on Thu Jun 14 22:10:49 MDT 2018
-# Start of session at: Fri Dec  5 09:13:46 2025
-# Process ID: 8056
+# Start of session at: Fri Dec  5 09:38:03 2025
+# Process ID: 13028
 # Current directory: E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.runs/synth_1
 # Command line: vivado.exe -log top_v2.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source top_v2.tcl
 # Log file: E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.runs/synth_1/top_v2.vds
@@ -15,18 +15,21 @@ Starting synth_design
 Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
 INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
 INFO: Launching helper process for spawning children vivado processes
-INFO: Helper process launched with PID 13508 
+INFO: Helper process launched with PID 19492 
 ---------------------------------------------------------------------------------
-Starting RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:04 . Memory (MB): peak = 410.324 ; gain = 96.918
+Starting RTL Elaboration : Time (s): cpu = 00:00:01 ; elapsed = 00:00:03 . Memory (MB): peak = 410.051 ; gain = 96.324
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-6157] synthesizing module 'top_v2' [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_v2.v:1]
 	Parameter RESET_FILTER_MAX bound to: 1048575 - type: integer 
 	Parameter STARTUP_DELAY_CYCLES bound to: 255 - type: integer 
-	Parameter LED_HOLD_TICKS bound to: 27'b001011111010111100001000000 
+	Parameter LED_HOLD_TICKS bound to: 27'b000000011110100001001000000 
 	Parameter EXPECTED_PAYLOAD bound to: 48'b000000001000110000000000011110000000000001100100 
+	Parameter EXPECTED_X bound to: 16'b0000000001100100 
+	Parameter EXPECTED_Y bound to: 16'b0000000001111000 
+	Parameter EXPECTED_Z bound to: 16'b0000000010001100 
 	Parameter USE_IRQ bound to: 1 - type: integer 
 INFO: [Synth 8-6157] synthesizing module 'nrf24l01_rx_controller' [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_controller.v:1]
-	Parameter USE_IRQ bound to: 0 - type: integer 
+	Parameter USE_IRQ bound to: 1 - type: integer 
 	Parameter RX_POLL_INTERVAL bound to: 24'b101111101011110000100000 
 	Parameter PIPE0_ADDRESS bound to: 40'b1110011111100111111001111110011111100111 
 	Parameter RF_CHANNEL bound to: 8'b01001100 
@@ -34,6 +37,7 @@ INFO: [Synth 8-6157] synthesizing module 'nrf24l01_rx_controller' [E:/Git_wp/Ges
 	Parameter PAYLOAD_BYTES bound to: 6 - type: integer 
 	Parameter INITIAL_DELAY_COUNT bound to: 625000 - type: integer 
 	Parameter POWERUP_DELAY_COUNT bound to: 625000 - type: integer 
+	Parameter WATCHDOG_TIMEOUT_COUNT bound to: 375000000 - type: integer 
 	Parameter CMD_R_REGISTER bound to: 8'b00000000 
 	Parameter CMD_W_REGISTER bound to: 8'b00100000 
 	Parameter CMD_R_RX_PAYLOAD bound to: 8'b01100001 
@@ -107,17 +111,20 @@ INFO: [Synth 8-6157] synthesizing module 'nrf24l01_rx_controller' [E:/Git_wp/Ges
 	Parameter STATE_READ_PAYLOAD_BYTE bound to: 6'b101001 
 	Parameter STATE_CLEAR_IRQ_CMD bound to: 6'b101010 
 	Parameter STATE_CLEAR_IRQ_DATA bound to: 6'b101011 
+	Parameter STATE_FORCE_RESET bound to: 6'b101100 
 	Parameter STATE_RAISE_CSN bound to: 6'b111111 
 INFO: [Synth 8-6157] synthesizing module 'spi_master' [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/spi_master.v:1]
 	Parameter STATE_IDLE bound to: 2'b00 
 	Parameter STATE_TRANSFER bound to: 2'b01 
 INFO: [Synth 8-6155] done synthesizing module 'spi_master' (1#1) [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/spi_master.v:1]
-WARNING: [Synth 8-6014] Unused sequential element fifo_status_reg_reg was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_controller.v:151]
+WARNING: [Synth 8-6014] Unused sequential element fifo_status_reg_reg was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_controller.v:154]
+WARNING: [Synth 8-6014] Unused sequential element rx_poll_counter_reg was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_controller.v:155]
 INFO: [Synth 8-6155] done synthesizing module 'nrf24l01_rx_controller' (2#1) [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_controller.v:1]
-INFO: [Synth 8-6155] done synthesizing module 'top_v2' (3#1) [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_v2.v:1]
-WARNING: [Synth 8-3331] design nrf24l01_rx_controller has unconnected port nrf_irq
+INFO: [Synth 8-6157] synthesizing module 'payload_assembler' [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/payload_assembler.v:5]
+INFO: [Synth 8-6155] done synthesizing module 'payload_assembler' (3#1) [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/payload_assembler.v:5]
+INFO: [Synth 8-6155] done synthesizing module 'top_v2' (4#1) [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/top_v2.v:1]
 ---------------------------------------------------------------------------------
-Finished RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:05 . Memory (MB): peak = 464.836 ; gain = 151.430
+Finished RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:04 . Memory (MB): peak = 465.047 ; gain = 151.320
 ---------------------------------------------------------------------------------
 
 Report Check Netlist: 
@@ -130,10 +137,10 @@ Report Check Netlist:
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:03 ; elapsed = 00:00:06 . Memory (MB): peak = 464.836 ; gain = 151.430
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:02 ; elapsed = 00:00:04 . Memory (MB): peak = 465.047 ; gain = 151.320
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:03 ; elapsed = 00:00:06 . Memory (MB): peak = 464.836 ; gain = 151.430
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:02 ; elapsed = 00:00:04 . Memory (MB): peak = 465.047 ; gain = 151.320
 ---------------------------------------------------------------------------------
 INFO: [Device 21-403] Loading part xc7z020clg400-1
 INFO: [Project 1-570] Preparing netlist for logic optimization
@@ -167,22 +174,22 @@ Completed Processing XDC Constraints
 INFO: [Project 1-111] Unisim Transformation Summary:
 No Unisim elements were transformed.
 
-Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 823.730 ; gain = 0.000
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 824.387 ; gain = 0.000
 ---------------------------------------------------------------------------------
-Finished Constraint Validation : Time (s): cpu = 00:00:14 ; elapsed = 00:00:21 . Memory (MB): peak = 823.730 ; gain = 510.324
+Finished Constraint Validation : Time (s): cpu = 00:00:10 ; elapsed = 00:00:15 . Memory (MB): peak = 824.387 ; gain = 510.660
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Loading Part and Timing Information
 ---------------------------------------------------------------------------------
 Loading part: xc7z020clg400-1
 ---------------------------------------------------------------------------------
-Finished Loading Part and Timing Information : Time (s): cpu = 00:00:14 ; elapsed = 00:00:21 . Memory (MB): peak = 823.730 ; gain = 510.324
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:10 ; elapsed = 00:00:15 . Memory (MB): peak = 824.387 ; gain = 510.660
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying 'set_property' XDC Constraints
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:14 ; elapsed = 00:00:21 . Memory (MB): peak = 823.730 ; gain = 510.324
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:11 ; elapsed = 00:00:15 . Memory (MB): peak = 824.387 ; gain = 510.660
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-802] inferred FSM for state register 'state_reg' in module 'spi_master'
 INFO: [Synth 8-5544] ROM "state" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
@@ -196,8 +203,12 @@ INFO: [Synth 8-5544] ROM "addr_byte_index" won't be mapped to Block RAM because 
 INFO: [Synth 8-5544] ROM "payload_byte_index" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
 INFO: [Synth 8-5546] ROM "start_rx_reg" won't be mapped to RAM because it is too sparse
 INFO: [Synth 8-5545] ROM "led0_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
-INFO: [Synth 8-5545] ROM "led1_latched" won't be mapped to RAM because address size (48) is larger than maximum supported(25)
+INFO: [Synth 8-5546] ROM "led1_latched" won't be mapped to RAM because it is too sparse
 INFO: [Synth 8-5545] ROM "led1_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
+INFO: [Synth 8-5546] ROM "led2_latched" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5545] ROM "led2_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
+INFO: [Synth 8-5546] ROM "led3_latched" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5545] ROM "led3_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
 ---------------------------------------------------------------------------------------------------
                    State |                     New Encoding |                Previous Encoding 
 ---------------------------------------------------------------------------------------------------
@@ -206,7 +217,7 @@ INFO: [Synth 8-5545] ROM "led1_latched" won't be mapped to RAM because address s
 ---------------------------------------------------------------------------------------------------
 INFO: [Synth 8-3354] encoded FSM with state register 'state_reg' using encoding 'sequential' in module 'spi_master'
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:15 ; elapsed = 00:00:22 . Memory (MB): peak = 823.730 ; gain = 510.324
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:11 ; elapsed = 00:00:16 . Memory (MB): peak = 824.387 ; gain = 510.660
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -220,39 +231,38 @@ Start RTL Component Statistics
 Detailed RTL Component Info : 
 +---Adders : 
 	   2 Input     32 Bit       Adders := 1     
-	   2 Input     27 Bit       Adders := 1     
-	   2 Input     24 Bit       Adders := 1     
+	   2 Input     29 Bit       Adders := 1     
+	   2 Input     27 Bit       Adders := 3     
 	   2 Input     20 Bit       Adders := 1     
 	   2 Input      8 Bit       Adders := 2     
 	   2 Input      4 Bit       Adders := 2     
 	   2 Input      3 Bit       Adders := 1     
 +---Registers : 
 	               48 Bit    Registers := 1     
+	               32 Bit    Registers := 1     
 	               27 Bit    Registers := 1     
-	               24 Bit    Registers := 1     
+	               16 Bit    Registers := 3     
 	                9 Bit    Registers := 1     
 	                8 Bit    Registers := 5     
 	                6 Bit    Registers := 2     
 	                4 Bit    Registers := 3     
 	                3 Bit    Registers := 1     
-	                1 Bit    Registers := 13    
+	                1 Bit    Registers := 16    
 +---Muxes : 
 	   2 Input     48 Bit        Muxes := 2     
-	   2 Input     27 Bit        Muxes := 1     
-	   2 Input     24 Bit        Muxes := 1     
-	  46 Input     24 Bit        Muxes := 1     
+	   2 Input     27 Bit        Muxes := 3     
 	   2 Input      9 Bit        Muxes := 1     
 	   2 Input      8 Bit        Muxes := 5     
-	  46 Input      8 Bit        Muxes := 1     
+	  47 Input      8 Bit        Muxes := 1     
 	   2 Input      6 Bit        Muxes := 1     
-	  46 Input      6 Bit        Muxes := 2     
+	  47 Input      6 Bit        Muxes := 2     
 	   2 Input      4 Bit        Muxes := 1     
-	  46 Input      2 Bit        Muxes := 2     
-	   2 Input      1 Bit        Muxes := 30    
+	  47 Input      2 Bit        Muxes := 2     
+	   2 Input      1 Bit        Muxes := 45    
 	   3 Input      1 Bit        Muxes := 1     
-	  46 Input      1 Bit        Muxes := 12    
+	  47 Input      1 Bit        Muxes := 12    
 	   4 Input      1 Bit        Muxes := 1     
-	  47 Input      1 Bit        Muxes := 1     
+	  48 Input      1 Bit        Muxes := 1     
 ---------------------------------------------------------------------------------
 Finished RTL Component Statistics 
 ---------------------------------------------------------------------------------
@@ -263,16 +273,16 @@ Hierarchical RTL Component report
 Module top_v2 
 Detailed RTL Component Info : 
 +---Adders : 
-	   2 Input     27 Bit       Adders := 1     
+	   2 Input     27 Bit       Adders := 3     
 	   2 Input      8 Bit       Adders := 1     
 +---Registers : 
 	                9 Bit    Registers := 1     
 	                4 Bit    Registers := 1     
-	                1 Bit    Registers := 4     
+	                1 Bit    Registers := 6     
 +---Muxes : 
-	   2 Input     27 Bit        Muxes := 1     
+	   2 Input     27 Bit        Muxes := 3     
 	   2 Input      9 Bit        Muxes := 1     
-	   2 Input      1 Bit        Muxes := 10    
+	   2 Input      1 Bit        Muxes := 23    
 Module spi_master 
 Detailed RTL Component Info : 
 +---Adders : 
@@ -290,14 +300,14 @@ Detailed RTL Component Info :
 Module nrf24l01_rx_controller 
 Detailed RTL Component Info : 
 +---Adders : 
-	   2 Input     24 Bit       Adders := 1     
+	   2 Input     29 Bit       Adders := 1     
 	   2 Input     20 Bit       Adders := 1     
 	   2 Input      4 Bit       Adders := 1     
 	   2 Input      3 Bit       Adders := 1     
 +---Registers : 
 	               48 Bit    Registers := 1     
+	               32 Bit    Registers := 1     
 	               27 Bit    Registers := 1     
-	               24 Bit    Registers := 1     
 	                8 Bit    Registers := 1     
 	                6 Bit    Registers := 2     
 	                4 Bit    Registers := 1     
@@ -305,17 +315,20 @@ Detailed RTL Component Info :
 	                1 Bit    Registers := 6     
 +---Muxes : 
 	   2 Input     48 Bit        Muxes := 2     
-	   2 Input     24 Bit        Muxes := 1     
-	  46 Input     24 Bit        Muxes := 1     
-	  46 Input      8 Bit        Muxes := 1     
+	  47 Input      8 Bit        Muxes := 1     
 	   2 Input      6 Bit        Muxes := 1     
-	  46 Input      6 Bit        Muxes := 2     
-	  46 Input      2 Bit        Muxes := 2     
-	   2 Input      1 Bit        Muxes := 5     
+	  47 Input      6 Bit        Muxes := 2     
+	  47 Input      2 Bit        Muxes := 2     
+	   2 Input      1 Bit        Muxes := 7     
 	   3 Input      1 Bit        Muxes := 1     
-	  46 Input      1 Bit        Muxes := 12    
+	  47 Input      1 Bit        Muxes := 12    
 	   4 Input      1 Bit        Muxes := 1     
-	  47 Input      1 Bit        Muxes := 1     
+	  48 Input      1 Bit        Muxes := 1     
+Module payload_assembler 
+Detailed RTL Component Info : 
++---Registers : 
+	               16 Bit    Registers := 3     
+	                1 Bit    Registers := 1     
 ---------------------------------------------------------------------------------
 Finished RTL Hierarchical Component Statistics
 ---------------------------------------------------------------------------------
@@ -332,11 +345,16 @@ Finished Part Resource Summary
 Start Cross Boundary and Area Optimization
 ---------------------------------------------------------------------------------
 Warning: Parallel synthesis criteria is not met 
+WARNING: [Synth 8-6014] Unused sequential element nrf_controller/rx_ready_reg was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/nrf24l01_rx_controller.v:160]
+WARNING: [Synth 8-6014] Unused sequential element payload_assembler_inst/packet_ready_reg was removed.  [E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.srcs/sources_1/new/payload_assembler.v:28]
 INFO: [Synth 8-5545] ROM "led0_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
 INFO: [Synth 8-5545] ROM "led1_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
-INFO: [Synth 8-5545] ROM "led1_latched" won't be mapped to RAM because address size (48) is larger than maximum supported(25)
+INFO: [Synth 8-5546] ROM "led1_latched" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5545] ROM "led2_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
+INFO: [Synth 8-5546] ROM "led2_latched" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5545] ROM "led3_latched" won't be mapped to RAM because address size (27) is larger than maximum supported(25)
+INFO: [Synth 8-5546] ROM "led3_latched" won't be mapped to RAM because it is too sparse
 INFO: [Synth 8-5546] ROM "start_rx_reg" won't be mapped to RAM because it is too sparse
-WARNING: [Synth 8-3331] design top_v2 has unconnected port nrf_irq
 INFO: [Synth 8-3886] merging instance 'nrf_controller/delay_counter_reg[23]' (FDCE) to 'nrf_controller/delay_counter_reg[20]'
 INFO: [Synth 8-3886] merging instance 'nrf_controller/delay_counter_reg[24]' (FDCE) to 'nrf_controller/delay_counter_reg[20]'
 INFO: [Synth 8-3886] merging instance 'nrf_controller/delay_counter_reg[22]' (FDCE) to 'nrf_controller/delay_counter_reg[20]'
@@ -344,11 +362,15 @@ INFO: [Synth 8-3886] merging instance 'nrf_controller/delay_counter_reg[20]' (FD
 INFO: [Synth 8-3886] merging instance 'nrf_controller/delay_counter_reg[21]' (FDCE) to 'nrf_controller/delay_counter_reg[25]'
 INFO: [Synth 8-3886] merging instance 'nrf_controller/delay_counter_reg[26]' (FDCE) to 'nrf_controller/delay_counter_reg[25]'
 INFO: [Synth 8-3333] propagating constant 0 across sequential element (\nrf_controller/delay_counter_reg[25] )
+INFO: [Synth 8-3886] merging instance 'nrf_controller/watchdog_counter_reg[29]' (FDCE) to 'nrf_controller/watchdog_counter_reg[30]'
+INFO: [Synth 8-3886] merging instance 'nrf_controller/watchdog_counter_reg[31]' (FDCE) to 'nrf_controller/watchdog_counter_reg[30]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\nrf_controller/watchdog_counter_reg[30] )
 WARNING: [Synth 8-3332] Sequential element (nrf_controller/delay_counter_reg[25]) is unused and will be removed from module top_v2.
+WARNING: [Synth 8-3332] Sequential element (nrf_controller/watchdog_counter_reg[30]) is unused and will be removed from module top_v2.
 WARNING: [Synth 8-3332] Sequential element (nrf_controller/spi_master_inst/tx_shift_reg[7]) is unused and will be removed from module top_v2.
 WARNING: [Synth 8-3332] Sequential element (nrf_controller/spi_master_inst/rx_shift_reg[7]) is unused and will be removed from module top_v2.
 ---------------------------------------------------------------------------------
-Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:18 ; elapsed = 00:00:25 . Memory (MB): peak = 823.730 ; gain = 510.324
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:14 ; elapsed = 00:00:20 . Memory (MB): peak = 824.387 ; gain = 510.660
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -360,13 +382,13 @@ Report RTL Partitions:
 Start Applying XDC Timing Constraints
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 828.281 ; gain = 514.875
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:21 ; elapsed = 00:00:28 . Memory (MB): peak = 830.984 ; gain = 517.258
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Timing Optimization
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Timing Optimization : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 848.426 ; gain = 535.020
+Finished Timing Optimization : Time (s): cpu = 00:00:21 ; elapsed = 00:00:29 . Memory (MB): peak = 851.012 ; gain = 537.285
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -378,7 +400,7 @@ Report RTL Partitions:
 Start Technology Mapping
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Technology Mapping : Time (s): cpu = 00:00:28 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished Technology Mapping : Time (s): cpu = 00:00:21 ; elapsed = 00:00:29 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -402,7 +424,7 @@ Start Final Netlist Cleanup
 Finished Final Netlist Cleanup
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished IO Insertion : Time (s): cpu = 00:00:29 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished IO Insertion : Time (s): cpu = 00:00:22 ; elapsed = 00:00:29 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
 
 Report Check Netlist: 
@@ -415,7 +437,7 @@ Report Check Netlist:
 Start Renaming Generated Instances
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Instances : Time (s): cpu = 00:00:29 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:22 ; elapsed = 00:00:29 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
 
 Report RTL Partitions: 
@@ -427,25 +449,25 @@ Report RTL Partitions:
 Start Rebuilding User Hierarchy
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:29 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:22 ; elapsed = 00:00:30 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Ports
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Ports : Time (s): cpu = 00:00:29 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:22 ; elapsed = 00:00:30 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:29 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:22 ; elapsed = 00:00:30 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Nets
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Nets : Time (s): cpu = 00:00:29 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:22 ; elapsed = 00:00:30 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Writing Synthesis Report
@@ -462,49 +484,50 @@ Report Cell Usage:
 |      |Cell   |Count |
 +------+-------+------+
 |1     |BUFG   |     1|
-|2     |CARRY4 |    38|
-|3     |LUT1   |    33|
-|4     |LUT2   |   107|
-|5     |LUT3   |    52|
-|6     |LUT4   |   147|
-|7     |LUT5   |    36|
-|8     |LUT6   |    89|
-|9     |MUXF7  |     1|
-|10    |FDCE   |   232|
+|2     |CARRY4 |    67|
+|3     |LUT1   |   189|
+|4     |LUT2   |    68|
+|5     |LUT3   |    37|
+|6     |LUT4   |   155|
+|7     |LUT5   |    70|
+|8     |LUT6   |   121|
+|9     |MUXF7  |     2|
+|10    |FDCE   |   340|
 |11    |FDPE   |     1|
 |12    |FDRE   |    21|
-|13    |IBUF   |     3|
+|13    |IBUF   |     4|
 |14    |OBUF   |     9|
 +------+-------+------+
 
 Report Instance Areas: 
-+------+--------------------+-----------------------+------+
-|      |Instance            |Module                 |Cells |
-+------+--------------------+-----------------------+------+
-|1     |top                 |                       |   770|
-|2     |  nrf_controller    |nrf24l01_rx_controller |   594|
-|3     |    spi_master_inst |spi_master             |   173|
-+------+--------------------+-----------------------+------+
++------+-------------------------+-----------------------+------+
+|      |Instance                 |Module                 |Cells |
++------+-------------------------+-----------------------+------+
+|1     |top                      |                       |  1085|
+|2     |  nrf_controller         |nrf24l01_rx_controller |   605|
+|3     |    spi_master_inst      |spi_master             |   159|
+|4     |  payload_assembler_inst |payload_assembler      |   163|
++------+-------------------------+-----------------------+------+
 ---------------------------------------------------------------------------------
-Finished Writing Synthesis Report : Time (s): cpu = 00:00:29 ; elapsed = 00:00:38 . Memory (MB): peak = 854.508 ; gain = 541.102
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:22 ; elapsed = 00:00:30 . Memory (MB): peak = 858.594 ; gain = 544.867
 ---------------------------------------------------------------------------------
-Synthesis finished with 0 errors, 0 critical warnings and 4 warnings.
-Synthesis Optimization Runtime : Time (s): cpu = 00:00:18 ; elapsed = 00:00:26 . Memory (MB): peak = 854.508 ; gain = 182.207
-Synthesis Optimization Complete : Time (s): cpu = 00:00:29 ; elapsed = 00:00:39 . Memory (MB): peak = 854.508 ; gain = 541.102
+Synthesis finished with 0 errors, 0 critical warnings and 6 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:13 ; elapsed = 00:00:21 . Memory (MB): peak = 858.594 ; gain = 185.527
+Synthesis Optimization Complete : Time (s): cpu = 00:00:22 ; elapsed = 00:00:30 . Memory (MB): peak = 858.594 ; gain = 544.867
 INFO: [Project 1-571] Translating synthesized netlist
-INFO: [Netlist 29-17] Analyzing 42 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Netlist 29-17] Analyzing 73 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
 INFO: [Project 1-570] Preparing netlist for logic optimization
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 INFO: [Project 1-111] Unisim Transformation Summary:
 No Unisim elements were transformed.
 
 INFO: [Common 17-83] Releasing license: Synthesis
-44 Infos, 12 Warnings, 6 Critical Warnings and 0 Errors encountered.
+57 Infos, 14 Warnings, 6 Critical Warnings and 0 Errors encountered.
 synth_design completed successfully
-synth_design: Time (s): cpu = 00:00:32 ; elapsed = 00:00:41 . Memory (MB): peak = 854.508 ; gain = 554.168
+synth_design: Time (s): cpu = 00:00:24 ; elapsed = 00:00:32 . Memory (MB): peak = 858.594 ; gain = 557.926
 WARNING: [Constraints 18-5210] No constraint will be written out.
 INFO: [Common 17-1381] The checkpoint 'E:/Git_wp/Gesture_Control_Robot/GestureReceiverCode/arty-z7-gesture-receiver/arty-z7-gesture-receiver.runs/synth_1/top_v2.dcp' has been generated.
 INFO: [runtcl-4] Executing : report_utilization -file top_v2_utilization_synth.rpt -pb top_v2_utilization_synth.pb
-report_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.044 . Memory (MB): peak = 854.508 ; gain = 0.000
-INFO: [Common 17-206] Exiting Vivado at Fri Dec  5 09:14:37 2025...
+report_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.043 . Memory (MB): peak = 858.594 ; gain = 0.000
+INFO: [Common 17-206] Exiting Vivado at Fri Dec  5 09:38:39 2025...

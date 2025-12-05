@@ -6,7 +6,8 @@ module nrf24l01_rx_controller #(
     parameter [7:0] RF_SETUP_VALUE = 8'h26,
     parameter integer PAYLOAD_BYTES = 6,
     parameter integer INITIAL_DELAY_COUNT = 27'd625000,
-    parameter integer POWERUP_DELAY_COUNT = 27'd625000
+    parameter integer POWERUP_DELAY_COUNT = 27'd625000,
+    parameter integer WATCHDOG_TIMEOUT_COUNT = 32'd375000000 // ~3 s at 125 MHz; adjust if clk differs
 ) (
     input clk,
     input rst_n,
@@ -98,6 +99,7 @@ module nrf24l01_rx_controller #(
     localparam [5:0] STATE_READ_PAYLOAD_BYTE    = 6'd41;
     localparam [5:0] STATE_CLEAR_IRQ_CMD        = 6'd42;
     localparam [5:0] STATE_CLEAR_IRQ_DATA       = 6'd43;
+    localparam [5:0] STATE_FORCE_RESET          = 6'd44;
     localparam [5:0] STATE_RAISE_CSN            = 6'd63;
 
     reg [5:0] current_state;
@@ -108,6 +110,7 @@ module nrf24l01_rx_controller #(
     reg spi_busy;
     reg [7:0] fifo_status_reg;
     reg [23:0] rx_poll_counter;
+    reg [31:0] watchdog_counter;
 
     reg spi_start;
     reg [7:0] spi_data_in;
@@ -157,9 +160,18 @@ module nrf24l01_rx_controller #(
             rx_ready <= 1'b0;
             nrf_ce <= 1'b0;
             nrf_csn <= 1'b1;
+            watchdog_counter <= 32'd0;
         end else begin
             spi_start <= 1'b0;
             payload_ready <= 1'b0;
+
+            if (current_state == STATE_READY) begin
+                if (watchdog_counter < WATCHDOG_TIMEOUT_COUNT) begin
+                    watchdog_counter <= watchdog_counter + 1'b1;
+                end
+            end else begin
+                watchdog_counter <= 32'd0;
+            end
 
             case (current_state)
                 STATE_IDLE: begin
@@ -664,15 +676,22 @@ module nrf24l01_rx_controller #(
                     nrf_ce <= 1'b1;
                     nrf_csn <= 1'b1;
                     rx_ready <= 1'b1;
-                    rx_poll_counter <= USE_IRQ ? 24'd0 : rx_poll_counter + 1'b1;
-                    if (USE_IRQ) begin
-                        if (!nrf_irq) begin
-                            current_state <= STATE_READ_PAYLOAD_CMD;
-                        end
+                    if (watchdog_counter >= WATCHDOG_TIMEOUT_COUNT) begin
+                        nrf_ce <= 1'b0;
+                        rx_ready <= 1'b0;
+                        rx_poll_counter <= 24'd0;
+                        current_state <= STATE_FORCE_RESET;
                     end else begin
-                        if (rx_poll_counter >= RX_POLL_INTERVAL) begin
-                            rx_poll_counter <= 24'd0;
-                            current_state <= STATE_POLL_FIFO_CMD;
+                        rx_poll_counter <= USE_IRQ ? 24'd0 : rx_poll_counter + 1'b1;
+                        if (USE_IRQ) begin
+                            if (!nrf_irq) begin
+                                current_state <= STATE_READ_PAYLOAD_CMD;
+                            end
+                        end else begin
+                            if (rx_poll_counter >= RX_POLL_INTERVAL) begin
+                                rx_poll_counter <= 24'd0;
+                                current_state <= STATE_POLL_FIFO_CMD;
+                            end
                         end
                     end
                 end
@@ -769,6 +788,18 @@ module nrf24l01_rx_controller #(
                         next_after_csn <= STATE_READY;
                         current_state <= STATE_RAISE_CSN;
                     end
+                end
+
+                STATE_FORCE_RESET: begin
+                    nrf_ce <= 1'b0;
+                    nrf_csn <= 1'b1;
+                    rx_ready <= 1'b0;
+                    spi_busy <= 1'b0;
+                    rx_poll_counter <= 24'd0;
+                    delay_counter <= 27'd0;
+                    addr_byte_index <= 3'd0;
+                    payload_byte_index <= 4'd0;
+                    current_state <= STATE_INIT_DELAY;
                 end
 
                 STATE_RAISE_CSN: begin

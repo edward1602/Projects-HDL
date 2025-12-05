@@ -8,7 +8,15 @@ module top_v2 (
     output nrf_mosi,
     input nrf_miso,
     output payload_ready,
-    output [3:0] leds
+    output [3:0] leds,
+    
+    // Motor control outputs
+    output motor_a1,        // IN1 - Motor A direction 1
+    output motor_a2,        // IN2 - Motor A direction 2
+    output motor_b1,        // IN3 - Motor B direction 1
+    output motor_b2,        // IN4 - Motor B direction 2
+    output pwm_ena,         // ENA - Motor A PWM speed control
+    output pwm_enb          // ENB - Motor B PWM speed control
 );
 
     localparam integer RESET_FILTER_MAX = 20'hFFFFF;
@@ -125,5 +133,46 @@ module top_v2 (
     end
 
     assign leds = led_state;
+
+    // =========================================================================
+    // Payload Assembler - Extract X, Y, Z axis from 48-bit payload
+    // =========================================================================
+    wire [15:0] gesture_x;
+    wire [15:0] gesture_y;
+    wire [15:0] gesture_z;
+    wire packet_ready;
+    
+    payload_assembler assembler_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .rx_payload_in(rx_payload),
+        .data_valid(payload_ready_pulse),
+        .x_axis_out(gesture_x),
+        .y_axis_out(gesture_y),
+        .z_axis_out(gesture_z),
+        .packet_ready(packet_ready)
+    );
+
+    // =========================================================================
+    // Motor Controller - Control motors based on gesture data
+    // =========================================================================
+    motor_controller #(
+        .CLK_FREQ(100_000_000),    // 100MHz Arty Z7 clock
+        .PWM_FREQ(1000),           // 1kHz PWM frequency
+        .TIMEOUT_MS(2000)          // 2 second timeout
+    ) motor_ctrl_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .x_axis(gesture_x),
+        .y_axis(gesture_y),
+        .z_axis(gesture_z),
+        .data_valid(packet_ready),
+        .motor_a1(motor_a1),
+        .motor_a2(motor_a2),
+        .motor_b1(motor_b1),
+        .motor_b2(motor_b2),
+        .pwm_ena(pwm_ena),
+        .pwm_enb(pwm_enb)
+    );
 
 endmodule
